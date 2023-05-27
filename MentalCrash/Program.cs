@@ -5,6 +5,7 @@ namespace MentalCrash
     public class Program
     {
         public static List<string> functions = new List<string>();
+        public static List<string> variables = new List<string>();
         static void Main(string[] args)
         {
             if (args.Length != 0)
@@ -120,7 +121,7 @@ namespace MentalCrash
                     string foundItem = functions.FirstOrDefault(item => item.StartsWith(func_name + ">"));
                     if (foundItem != null)
                     {
-                        int index = functions.IndexOf(func_name + "> " + func_code);
+                        int index = functions.IndexOf(foundItem);
                         List<string> arg_lists = new(foundItem.Substring(func_name.Length + 2).Split("|"));
                         string commands = arg_lists[0].Split(" ")[0];
                         string arguments = arg_lists[0].Substring(commands.Length + 1);
@@ -131,6 +132,35 @@ namespace MentalCrash
                     else
                     {
                         functions.Add(func_name + "> " + func_code);
+                    }
+                }
+                if (c == 'V')
+                {
+                    if (args_list.Count == 0)
+                    {
+                        Console.WriteLine("Error; No Data Left In Tape, " + current_cycle.ToString() + " out of " + total_length.ToString() + " commands have been processed, fix the error and re-run the program");
+                        break;
+                    }
+                    string var_name = "";
+                    string var_code = "";
+                    try
+                    {
+                        var_name = args_list[0].Trim();
+                        var_code = args_list[1];
+                    }
+                    catch
+                    { }
+                    string foundItem = variables.FirstOrDefault(item => item.StartsWith(var_name + ">"));
+                    if (foundItem != null)
+                    {
+                        int index = variables.IndexOf(foundItem);
+                        Console.WriteLine(variables[index]);
+                        //arg_lists.RemoveAt(0);
+                        //foreach thingie
+                    }
+                    else
+                    {
+                        variables.Add(var_name + "> " + var_code);
                     }
                 }
                 if (c == 'I')
