@@ -69,7 +69,7 @@ namespace MentalCrash
             }
         }
 
-        public static void Interperator(string command, List<string> args_list)
+        public static object Interperator(string command, List<string> args_list)
         {
             int total_length = command.ToCharArray().Length;
             int current_cycle = 0;
@@ -101,6 +101,7 @@ namespace MentalCrash
                     Console.Write(input);
                     Console.SetCursorPosition(0, Console.CursorTop);
                     Console.WriteLine("\n");
+                    return input;
                 }
                 else if (c == 'f')
                 {
@@ -154,9 +155,7 @@ namespace MentalCrash
                     if (foundItem != null)
                     {
                         int index = variables.IndexOf(foundItem);
-                        Console.WriteLine(variables[index]);
-                        //arg_lists.RemoveAt(0);
-                        //foreach thingie
+                        Console.WriteLine(variables[index].Substring((var_name + "> ").Length));
                     }
                     else
                     {
@@ -183,13 +182,17 @@ namespace MentalCrash
                     { }
                     List<string> ifTrueCodeL = new List<string>(ifTrueCode.Split(" "));
                     List<string> ifFalseCodeL = new List<string>(ifFalseCode.Split(" "));
-
                     ifTrueCodeL.RemoveAt(0);
                     ifFalseCodeL.RemoveAt(0);
 
                     string LHS_condition = condition.Split(" ")[0];
                     string RHS_condition = condition.Split(" ")[2];
                     string Operator = condition.Split(" ")[1];
+
+                    if (LHS_condition.StartsWith(":"))
+                    {
+                        LHS_condition = Convert.ToString(Interperator(LHS_condition, null));
+                    }
                     if (Operator == "==")
                     {
                         if (string.Equals(LHS_condition, RHS_condition))
@@ -319,6 +322,7 @@ namespace MentalCrash
                 }
                 current_cycle++;
             }
+            return null;
         }
     }
 }
