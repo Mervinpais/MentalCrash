@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "MentalCrash": {
+      "commandName": "Project"
+    },
+    "TestProgram": {
+      "commandName": "Project",
+      "commandLineArgs": "C:\\Users\\mervi\\repos\\MentalCrash\\MentalCrash\\bin\\Debug\\net7.0\\testProgram.txt"
+    }
+  }
+}
