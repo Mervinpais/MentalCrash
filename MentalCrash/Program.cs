@@ -133,6 +133,56 @@ namespace MentalCrash
                         functions.Add(func_name + "> " + func_code);
                     }
                 }
+                if (c == 'I')
+                {
+                    if (args_list.Count == 0)
+                    {
+                        Console.WriteLine("Error; No Data Left In Tape, " + current_cycle.ToString() + " out of " + total_length.ToString() + " commands have been processed, fix the error and re-run the program");
+                        break;
+                    }
+                    string condition = "";
+                    string ifTrueCode = "";
+                    string ifFalseCode = "";
+                    try
+                    {
+                        condition = args_list[0].Trim();
+                        ifTrueCode = args_list[1];
+                        ifFalseCode = args_list[2];
+                    }
+                    catch
+                    { }
+                    List<string> ifTrueCodeL = new List<string>(ifTrueCode.Split(" "));
+                    List<string> ifFalseCodeL = new List<string>(ifFalseCode.Split(" "));
+
+                    ifTrueCodeL.RemoveAt(0);
+                    ifFalseCodeL.RemoveAt(0);
+
+                    string LHS_condition = condition.Split(" ")[0];
+                    string RHS_condition = condition.Split(" ")[2];
+                    string Operator = condition.Split(" ")[1];
+                    if (Operator == "==")
+                    {
+                        if (string.Equals(LHS_condition, RHS_condition))
+                        {
+                            Interperator(ifTrueCode.Split(" ")[0], ifTrueCodeL);
+                        }
+                        else
+                        {
+                            Interperator(ifFalseCode.Split(" ")[0], ifFalseCodeL);
+                        }
+                    }
+                    else if (Operator == "!=")
+                    {
+                        if (!string.Equals(LHS_condition, RHS_condition))
+                        {
+                            Interperator(ifTrueCode.Split(" ")[0], ifTrueCodeL);
+                        }
+                        else
+                        {
+                            Interperator(ifFalseCode.Split(" ")[0], ifFalseCodeL);
+                        }
+                    }
+                }
                 if (c == 'a' || c == 's' || c == 'm' || c == 'd')
                 {
                     if (args_list.Count == 0)
