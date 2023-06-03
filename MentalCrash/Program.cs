@@ -35,7 +35,7 @@ namespace MentalCrash
                         command = line;
                         //args_list.Add("<null>");
                     }
-                    Interperator(command, args_list);
+                    Interperator(command, args_list, out _);
                 }
                 Console.WriteLine("\n-====INTERPERATOR====-\n");
             }
@@ -65,11 +65,11 @@ namespace MentalCrash
                     command = line;
                     //args_list.Add("<null>");
                 }
-                Interperator(command, args_list);
+                Interperator(command, args_list, out _);
             }
         }
 
-        public static object Interperator(string command, List<string> args_list)
+        public static object Interperator(string command, List<string> args_list, out object output)
         {
             int total_length = command.ToCharArray().Length;
             int current_cycle = 0;
@@ -101,7 +101,7 @@ namespace MentalCrash
                     Console.Write(input);
                     Console.SetCursorPosition(0, Console.CursorTop);
                     Console.WriteLine("\n");
-                    return input;
+                    output = input;
                 }
                 else if (c == 'f')
                 {
@@ -126,9 +126,7 @@ namespace MentalCrash
                         List<string> arg_lists = new(foundItem.Substring(func_name.Length + 2).Split("|"));
                         string commands = arg_lists[0].Split(" ")[0];
                         string arguments = arg_lists[0].Substring(commands.Length + 1);
-                        //arg_lists.RemoveAt(0);
-                        //foreach thingie
-                        Interperator(commands, new List<string>(arguments.Split("|")));
+                        Interperator(commands, new List<string>(arguments.Split("|")), out _);
                     }
                     else
                     {
@@ -159,7 +157,14 @@ namespace MentalCrash
                     }
                     else
                     {
-                        variables.Add(var_name + "> " + var_code);
+                        if (var_code.StartsWith(":"))
+                        {
+                            variables.Add(var_name + "> " + Convert.ToString(Interperator(var_code, null, out _)));
+                        }
+                        else
+                        {
+                            variables.Add(var_name + "> " + var_code);
+                        }
                     }
                 }
                 if (c == 'I')
@@ -191,28 +196,28 @@ namespace MentalCrash
 
                     if (LHS_condition.StartsWith(":"))
                     {
-                        LHS_condition = Convert.ToString(Interperator(LHS_condition, null));
+                        LHS_condition = Convert.ToString(Interperator(LHS_condition, null, out _));
                     }
                     if (Operator == "==")
                     {
                         if (string.Equals(LHS_condition, RHS_condition))
                         {
-                            Interperator(ifTrueCode.Split(" ")[0], ifTrueCodeL);
+                            Interperator(ifTrueCode.Split(" ")[0], ifTrueCodeL, out _);
                         }
                         else
                         {
-                            Interperator(ifFalseCode.Split(" ")[0], ifFalseCodeL);
+                            Interperator(ifFalseCode.Split(" ")[0], ifFalseCodeL, out _);
                         }
                     }
                     else if (Operator == "!=")
                     {
                         if (!string.Equals(LHS_condition, RHS_condition))
                         {
-                            Interperator(ifTrueCode.Split(" ")[0], ifTrueCodeL);
+                            Interperator(ifTrueCode.Split(" ")[0], ifTrueCodeL, out _);
                         }
                         else
                         {
-                            Interperator(ifFalseCode.Split(" ")[0], ifFalseCodeL);
+                            Interperator(ifFalseCode.Split(" ")[0], ifFalseCodeL, out _);
                         }
                     }
                 }
@@ -230,16 +235,16 @@ namespace MentalCrash
                     }
                     string data = args_list[0].TrimEnd().TrimStart();
                     data = data.Substring(1, data.Length - 2);
-                    List<int> numbers = new List<int>();
+                    List<double> numbers = new List<double>();
 
                     if (c == 'a')
                     {
                         foreach (string e in data.Split(","))
                         {
-                            numbers.Add(Convert.ToInt32(e.Trim()));
+                            numbers.Add(Convert.ToDouble(e.Trim()));
                         }
-                        int sum = 0;
-                        foreach (int n in numbers)
+                        double sum = 0;
+                        foreach (double n in numbers)
                         {
                             sum += n;
                         }
@@ -255,11 +260,11 @@ namespace MentalCrash
                             {
                                 count++; continue;
                             }
-                            numbers.Add(Convert.ToInt32(e.Trim()));
+                            numbers.Add(Convert.ToDouble(e.Trim()));
                             count++;
                         }
-                        int difference = Convert.ToInt32(data.Split(",")[0]);
-                        foreach (int n in numbers)
+                        double difference = Convert.ToDouble(data.Split(",")[0]);
+                        foreach (double n in numbers)
                         {
                             difference -= n;
                         }
@@ -275,11 +280,11 @@ namespace MentalCrash
                             {
                                 count++; continue;
                             }
-                            numbers.Add(Convert.ToInt32(e.Trim()));
+                            numbers.Add(Convert.ToDouble(e.Trim()));
                             count++;
                         }
-                        int product = Convert.ToInt32(data.Split(",")[0]);
-                        foreach (int n in numbers)
+                        double product = Convert.ToDouble(data.Split(",")[0]);
+                        foreach (double n in numbers)
                         {
                             product *= n;
                         }
@@ -295,13 +300,21 @@ namespace MentalCrash
                             {
                                 count++; continue;
                             }
-                            numbers.Add(Convert.ToInt32(e.Trim()));
+                            numbers.Add(Convert.ToDouble(e.Trim()));
                             count++;
                         }
-                        int quotient = Convert.ToInt32(data.Split(",")[0]);
-                        foreach (int n in numbers)
+                        double quotient = Convert.ToDouble(data.Split(",")[0]);
+                        foreach (double n in numbers)
                         {
-                            quotient /= n;
+                            try
+                            {
+                                quotient /= n;
+                            }
+                            catch (DivideByZeroException)
+                            {
+                                Console.WriteLine("Error; You cant divide by Zero");
+                                break;
+                            }
                         }
                         Console.WriteLine(quotient);
                         args_list.RemoveAt(0);
@@ -322,6 +335,7 @@ namespace MentalCrash
                 }
                 current_cycle++;
             }
+            output = "";
             return null;
         }
     }
