@@ -10,18 +10,46 @@ namespace MentalCrash
         {
             if (args.Length != 0)
             {
-                string[] lines = File.ReadAllLines(args[0]);
-                foreach (string line in lines)
+                if (File.Exists(args[0]))
                 {
-                    if (line == null || line == "") continue;
+                    string[] lines = File.ReadAllLines(args[0]);
+                    foreach (string line in lines)
+                    {
+                        if (line == null || line == "") continue;
+                        string command;
+                        string arguments = "";
+                        List<string> args_list = new List<string>();
+                        if (line.Contains(' '))
+                        {
+                            command = line.Split(" ")[0];
+                            int isFirst = -1;
+                            foreach (string e in line.Split(" "))
+                            {
+                                isFirst++;
+                                if (isFirst == 0) continue;
+                                arguments += e + " ";
+
+                            }
+                            args_list.AddRange(arguments.Split("|"));
+                        }
+                        else
+                        {
+                            command = line;
+                            //args_list.Add("<null>");
+                        }
+                        Interperator(command, args_list, out _);
+                    }
+                }
+                else
+                {
                     string command;
                     string arguments = "";
                     List<string> args_list = new List<string>();
-                    if (line.Contains(' '))
+                    if (string.Join(' ', args).Contains(' '))
                     {
-                        command = line.Split(" ")[0];
+                        command = string.Join(' ', args).Split(" ")[0];
                         int isFirst = -1;
-                        foreach (string e in line.Split(" "))
+                        foreach (string e in string.Join(' ', args).Split(" "))
                         {
                             isFirst++;
                             if (isFirst == 0) continue;
@@ -32,13 +60,12 @@ namespace MentalCrash
                     }
                     else
                     {
-                        command = line;
-                        //args_list.Add("<null>");
+                        command = string.Join(' ', args);
                     }
                     Interperator(command, args_list, out _);
                 }
-                Console.WriteLine("\n-====INTERPERATOR====-\n");
             }
+            Console.WriteLine("\n-====INTERPERATOR====-\n");
             while (true)
             {
                 Console.Write(">");
@@ -79,6 +106,12 @@ namespace MentalCrash
                 {
                     continue;
                 }
+                if (c == '!' && command == "!")
+                {
+                    string line = command + " " + string.Join(" ", args_list.ToArray());
+                    output = null;
+                    return null;
+                }
                 if (c == 'p')
                 {
                     if (args_list.Count == 0)
@@ -88,12 +121,13 @@ namespace MentalCrash
                     }
                     Console.WriteLine(args_list[0]);
                     args_list.RemoveAt(0);
+                    current_cycle++;
                     continue;
                 }
                 else if (c == 'i')
                 {
                     Console.Write("input>");
-                    string input = Console.ReadLine();
+                    string? input = Console.ReadLine();
                     int inputLength = input.Length;
                     Console.SetCursorPosition(0, Console.CursorTop - 1);
                     Console.Write(new string(' ', inputLength + 7));
@@ -102,6 +136,7 @@ namespace MentalCrash
                     Console.SetCursorPosition(0, Console.CursorTop);
                     Console.WriteLine("\n");
                     output = input;
+                    return input;
                 }
                 else if (c == 'f')
                 {
@@ -196,7 +231,7 @@ namespace MentalCrash
 
                     if (LHS_condition.StartsWith(":"))
                     {
-                        LHS_condition = Convert.ToString(Interperator(LHS_condition, null, out _));
+                        LHS_condition = Convert.ToString(Interperator(LHS_condition.Substring(1), null, out _));
                     }
                     if (Operator == "==")
                     {
@@ -220,6 +255,7 @@ namespace MentalCrash
                             Interperator(ifFalseCode.Split(" ")[0], ifFalseCodeL, out _);
                         }
                     }
+                    args_list.RemoveRange(0, 3);
                 }
                 if (c == 'a' || c == 's' || c == 'm' || c == 'd')
                 {
@@ -336,7 +372,7 @@ namespace MentalCrash
                 current_cycle++;
             }
             output = "";
-            return null;
+            return "";
         }
     }
 }
