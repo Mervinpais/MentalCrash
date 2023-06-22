@@ -5,22 +5,51 @@ namespace MentalCrash
     public class Program
     {
         public static List<string> functions = new List<string>();
+        public static List<string> variables = new List<string>();
         static void Main(string[] args)
         {
             if (args.Length != 0)
             {
-                string[] lines = File.ReadAllLines(args[0]);
-                foreach (string line in lines)
+                if (File.Exists(args[0]))
                 {
-                    if (line == null || line == "") continue;
+                    string[] lines = File.ReadAllLines(args[0]);
+                    foreach (string line in lines)
+                    {
+                        if (line == null || line == "") continue;
+                        string command;
+                        string arguments = "";
+                        List<string> args_list = new List<string>();
+                        if (line.Contains(' '))
+                        {
+                            command = line.Split(" ")[0];
+                            int isFirst = -1;
+                            foreach (string e in line.Split(" "))
+                            {
+                                isFirst++;
+                                if (isFirst == 0) continue;
+                                arguments += e + " ";
+
+                            }
+                            args_list.AddRange(arguments.Split("|"));
+                        }
+                        else
+                        {
+                            command = line;
+                            //args_list.Add("<null>");
+                        }
+                        Interperator(command, args_list, out _);
+                    }
+                }
+                else
+                {
                     string command;
                     string arguments = "";
                     List<string> args_list = new List<string>();
-                    if (line.Contains(' '))
+                    if (string.Join(' ', args).Contains(' '))
                     {
-                        command = line.Split(" ")[0];
+                        command = string.Join(' ', args).Split(" ")[0];
                         int isFirst = -1;
-                        foreach (string e in line.Split(" "))
+                        foreach (string e in string.Join(' ', args).Split(" "))
                         {
                             isFirst++;
                             if (isFirst == 0) continue;
@@ -31,13 +60,12 @@ namespace MentalCrash
                     }
                     else
                     {
-                        command = line;
-                        //args_list.Add("<null>");
+                        command = string.Join(' ', args);
                     }
-                    Interperator(command, args_list);
+                    Interperator(command, args_list, out _);
                 }
-                Console.WriteLine("\n-====INTERPERATOR====-\n");
             }
+            Console.WriteLine("\n-====INTERPERATOR====-\n");
             while (true)
             {
                 Console.Write(">");
@@ -64,11 +92,11 @@ namespace MentalCrash
                     command = line;
                     //args_list.Add("<null>");
                 }
-                Interperator(command, args_list);
+                Interperator(command, args_list, out _);
             }
         }
 
-        public static void Interperator(string command, List<string> args_list)
+        public static object Interperator(string command, List<string> args_list, out object output)
         {
             int total_length = command.ToCharArray().Length;
             int current_cycle = 0;
@@ -77,6 +105,12 @@ namespace MentalCrash
                 if (c == ' ' || c == '\n')
                 {
                     continue;
+                }
+                if (c == '!' && command == "!")
+                {
+                    string line = command + " " + string.Join(" ", args_list.ToArray());
+                    output = null;
+                    return null;
                 }
                 if (c == 'p')
                 {
@@ -87,12 +121,13 @@ namespace MentalCrash
                     }
                     Console.WriteLine(args_list[0]);
                     args_list.RemoveAt(0);
+                    current_cycle++;
                     continue;
                 }
                 else if (c == 'i')
                 {
                     Console.Write("input>");
-                    string input = Console.ReadLine();
+                    string? input = Console.ReadLine();
                     int inputLength = input.Length;
                     Console.SetCursorPosition(0, Console.CursorTop - 1);
                     Console.Write(new string(' ', inputLength + 7));
@@ -100,6 +135,8 @@ namespace MentalCrash
                     Console.Write(input);
                     Console.SetCursorPosition(0, Console.CursorTop);
                     Console.WriteLine("\n");
+                    output = input;
+                    return input;
                 }
                 else if (c == 'f')
                 {
@@ -120,18 +157,105 @@ namespace MentalCrash
                     string foundItem = functions.FirstOrDefault(item => item.StartsWith(func_name + ">"));
                     if (foundItem != null)
                     {
-                        int index = functions.IndexOf(func_name + "> " + func_code);
+                        int index = functions.IndexOf(foundItem);
                         List<string> arg_lists = new(foundItem.Substring(func_name.Length + 2).Split("|"));
                         string commands = arg_lists[0].Split(" ")[0];
                         string arguments = arg_lists[0].Substring(commands.Length + 1);
-                        //arg_lists.RemoveAt(0);
-                        //foreach thingie
-                        Interperator(commands, new List<string>(arguments.Split("|")));
+                        Interperator(commands, new List<string>(arguments.Split("|")), out _);
                     }
                     else
                     {
                         functions.Add(func_name + "> " + func_code);
                     }
+                }
+                if (c == 'V')
+                {
+                    if (args_list.Count == 0)
+                    {
+                        Console.WriteLine("Error; No Data Left In Tape, " + current_cycle.ToString() + " out of " + total_length.ToString() + " commands have been processed, fix the error and re-run the program");
+                        break;
+                    }
+                    string var_name = "";
+                    string var_code = "";
+                    try
+                    {
+                        var_name = args_list[0].Trim();
+                        var_code = args_list[1];
+                    }
+                    catch
+                    { }
+                    string foundItem = variables.FirstOrDefault(item => item.StartsWith(var_name + ">"));
+                    if (foundItem != null)
+                    {
+                        int index = variables.IndexOf(foundItem);
+                        Console.WriteLine(variables[index].Substring((var_name + "> ").Length));
+                    }
+                    else
+                    {
+                        if (var_code.StartsWith(":"))
+                        {
+                            variables.Add(var_name + "> " + Convert.ToString(Interperator(var_code, null, out _)));
+                        }
+                        else
+                        {
+                            variables.Add(var_name + "> " + var_code);
+                        }
+                    }
+                }
+                if (c == 'I')
+                {
+                    if (args_list.Count == 0)
+                    {
+                        Console.WriteLine("Error; No Data Left In Tape, " + current_cycle.ToString() + " out of " + total_length.ToString() + " commands have been processed, fix the error and re-run the program");
+                        break;
+                    }
+                    string condition = "";
+                    string ifTrueCode = "";
+                    string ifFalseCode = "";
+                    try
+                    {
+                        condition = args_list[0].Trim();
+                        ifTrueCode = args_list[1];
+                        ifFalseCode = args_list[2];
+                    }
+                    catch
+                    { }
+                    List<string> ifTrueCodeL = new List<string>(ifTrueCode.Split(" "));
+                    List<string> ifFalseCodeL = new List<string>(ifFalseCode.Split(" "));
+                    ifTrueCodeL.RemoveAt(0);
+                    ifFalseCodeL.RemoveAt(0);
+
+                    string LHS_condition = condition.Split(" ")[0];
+                    string RHS_condition = condition.Split(" ")[2];
+                    string Operator = condition.Split(" ")[1];
+
+                    if (LHS_condition.StartsWith(":"))
+                    {
+                        LHS_condition = Convert.ToString(Interperator(LHS_condition.Substring(1), null, out _));
+                    }
+                    if (Operator == "==")
+                    {
+                        if (string.Equals(LHS_condition, RHS_condition))
+                        {
+                            Interperator(ifTrueCode.Split(" ")[0], ifTrueCodeL, out _);
+                        }
+                        else
+                        {
+                            Interperator(ifFalseCode.Split(" ")[0], ifFalseCodeL, out _);
+                        }
+                    }
+                    else if (Operator == "!=")
+                    {
+                        if (!string.Equals(LHS_condition, RHS_condition))
+                        {
+                            Interperator(ifTrueCode.Split(" ")[0], ifTrueCodeL, out _);
+                        }
+                        else
+                        {
+                            Interperator(ifFalseCode.Split(" ")[0], ifFalseCodeL, out _);
+                        }
+                    }
+                    args_list.RemoveRange(0, 3);
                 }
                 if (c == 'a' || c == 's' || c == 'm' || c == 'd')
                 {
@@ -147,16 +271,16 @@ namespace MentalCrash
                     }
                     string data = args_list[0].TrimEnd().TrimStart();
                     data = data.Substring(1, data.Length - 2);
-                    List<int> numbers = new List<int>();
+                    List<double> numbers = new List<double>();
 
                     if (c == 'a')
                     {
                         foreach (string e in data.Split(","))
                         {
-                            numbers.Add(Convert.ToInt32(e.Trim()));
+                            numbers.Add(Convert.ToDouble(e.Trim()));
                         }
-                        int sum = 0;
-                        foreach (int n in numbers)
+                        double sum = 0;
+                        foreach (double n in numbers)
                         {
                             sum += n;
                         }
@@ -172,11 +296,11 @@ namespace MentalCrash
                             {
                                 count++; continue;
                             }
-                            numbers.Add(Convert.ToInt32(e.Trim()));
+                            numbers.Add(Convert.ToDouble(e.Trim()));
                             count++;
                         }
-                        int difference = Convert.ToInt32(data.Split(",")[0]);
-                        foreach (int n in numbers)
+                        double difference = Convert.ToDouble(data.Split(",")[0]);
+                        foreach (double n in numbers)
                         {
                             difference -= n;
                         }
@@ -192,11 +316,11 @@ namespace MentalCrash
                             {
                                 count++; continue;
                             }
-                            numbers.Add(Convert.ToInt32(e.Trim()));
+                            numbers.Add(Convert.ToDouble(e.Trim()));
                             count++;
                         }
-                        int product = Convert.ToInt32(data.Split(",")[0]);
-                        foreach (int n in numbers)
+                        double product = Convert.ToDouble(data.Split(",")[0]);
+                        foreach (double n in numbers)
                         {
                             product *= n;
                         }
@@ -212,13 +336,21 @@ namespace MentalCrash
                             {
                                 count++; continue;
                             }
-                            numbers.Add(Convert.ToInt32(e.Trim()));
+                            numbers.Add(Convert.ToDouble(e.Trim()));
                             count++;
                         }
-                        int quotient = Convert.ToInt32(data.Split(",")[0]);
-                        foreach (int n in numbers)
+                        double quotient = Convert.ToDouble(data.Split(",")[0]);
+                        foreach (double n in numbers)
                         {
-                            quotient /= n;
+                            try
+                            {
+                                quotient /= n;
+                            }
+                            catch (DivideByZeroException)
+                            {
+                                Console.WriteLine("Error; You cant divide by Zero");
+                                break;
+                            }
                         }
                         Console.WriteLine(quotient);
                         args_list.RemoveAt(0);
@@ -239,6 +371,8 @@ namespace MentalCrash
                 }
                 current_cycle++;
             }
+            output = "";
+            return "";
         }
     }
 }

@@ -6,6 +6,10 @@
     "TestProgram": {
       "commandName": "Project",
       "commandLineArgs": "C:\\Users\\mervi\\repos\\MentalCrash\\MentalCrash\\bin\\Debug\\net7.0\\testProgram.txt"
+    },
+    "TestProgram2": {
+      "commandName": "Project",
+      "commandLineArgs": "C:\\Users\\mervi\\repos\\MentalCrash\\MentalCrash\\bin\\Debug\\net7.0\\testProgram2.txt"
     }
   }
 }
