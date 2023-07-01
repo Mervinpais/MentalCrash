@@ -98,19 +98,91 @@ namespace MentalCrash
 
         public static object Interperator(string command, List<string> args_list, out object output)
         {
+            List<string> cleanedOut = new List<string>(args_list);
+            args_list.Clear();
+            foreach (string item in cleanedOut)
+            {
+                args_list.Add(item.TrimStart().TrimEnd());
+            }
             int total_length = command.ToCharArray().Length;
             int current_cycle = 0;
+
+            //Checks
+
+
+            //isString
+            bool isString = false;
+
+            try
+            {
+                string firstElement = args_list[0];
+                bool startsWithQuote = firstElement.StartsWith("\"");
+                bool endsWithQuote = firstElement.EndsWith("\"");
+                string substring = firstElement.Substring(1, firstElement.Length - 2);
+                bool containsEscapedQuotes = substring.Contains("\"");
+
+                if (startsWithQuote && endsWithQuote && !containsEscapedQuotes)
+                {
+                    isString = true;
+                }
+                else
+                {
+                    isString = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                isString = false;
+            }
+
+            // Start of execution
             foreach (char c in command)
             {
                 if (c == ' ' || c == '\n')
                 {
                     continue;
                 }
-                if (c == '!' && command == "!")
+                else if (c == '!' && command == "!")
                 {
                     string line = command + " " + string.Join(" ", args_list.ToArray());
                     output = null;
                     return null;
+                }
+                else if (c == 'w') //with x, its like the using directive
+                {
+                    string fileName = args_list[0];
+                    if (!File.Exists(args_list[0]))
+                    {
+                        Console.WriteLine($"Error; File doesnt exist \'{fileName}\'");
+                        continue;
+                    }
+                    foreach (string line in File.ReadAllLines(fileName))
+                    {
+                        if (line == null || line == "") continue;
+                        string command1;
+                        string arguments = "";
+                        List<string> args_list1 = new List<string>();
+                        if (line.Contains(' '))
+                        {
+                            command1 = line.Split(" ")[0];
+                            int isFirst = -1;
+                            foreach (string e in line.Split(" "))
+                            {
+                                isFirst++;
+                                if (isFirst == 0) continue;
+                                arguments += e + " ";
+
+                            }
+                            args_list1.AddRange(arguments.Split("|"));
+                        }
+                        else
+                        {
+                            command1 = line;
+                            //args_list.Add("<null>");
+                        }
+                        Interperator(command1, args_list1, out _);
+                    }
                 }
                 if (c == 'p')
                 {
@@ -119,7 +191,14 @@ namespace MentalCrash
                         Console.WriteLine("Error; No Data Left In Tape, " + current_cycle.ToString() + " out of " + total_length.ToString() + " commands have been processed, fix the error and re-run the program");
                         break;
                     }
-                    Console.WriteLine(args_list[0]);
+
+                    if (isString)
+                    {
+                        string substring = args_list[0].Substring(1, args_list[0].Length - 2);
+                        string cleanedString = substring.Replace("\"\"", "\"");
+                        Console.WriteLine(cleanedString);
+                    }
+
                     args_list.RemoveAt(0);
                     current_cycle++;
                     continue;
@@ -220,8 +299,8 @@ namespace MentalCrash
                     }
                     catch
                     { }
-                    List<string> ifTrueCodeL = new List<string>(ifTrueCode.Split(" "));
-                    List<string> ifFalseCodeL = new List<string>(ifFalseCode.Split(" "));
+                    List<string> ifTrueCodeL = new List<string>(ifTrueCode.Split(" ")[1..]);
+                    List<string> ifFalseCodeL = new List<string>(ifFalseCode.Split(" ")[1..]);
                     ifTrueCodeL.RemoveAt(0);
                     ifFalseCodeL.RemoveAt(0);
 
