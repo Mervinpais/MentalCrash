@@ -1,5 +1,23 @@
 # MentalCrash
-### (Last Updated; 22 June 2023)
+### (Last Updated; 2 July 2023)
+## Changelog:
+
+### V-0.3
+
+- Strings now need* '"' (Double Quotes) on both sides
+- Ints now need* to be only numbers to work
+- If statement syntax update, Before;
+	```mc
+	I (condition)|(true condition)|(false condition)
+	```
+	Now;
+	```mc
+	I [(condition), (true condition), (false condition)]
+	```
+
+
+\* It is not fully implemented around the language, but in the main parts only
+
 ## What is MentalCrash?
 MentalCrash is an (Esoteric) Programming language created by me, Mervin14. I made this as a challenge to create a programming language that is intentionally confusing for myself.
 

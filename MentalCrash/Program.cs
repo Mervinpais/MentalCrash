@@ -1,5 +1,8 @@
 ﻿#pragma warning disable IDE0057 // Use range operator
 #pragma warning disable IDE0090 // Use 'new(...)'
+#nullable disable
+using System.Diagnostics;
+
 namespace MentalCrash
 {
     public class Program
@@ -65,34 +68,37 @@ namespace MentalCrash
                     Interperator(command, args_list, out _);
                 }
             }
-            Console.WriteLine("\n-====INTERPERATOR====-\n");
+            Console.WriteLine("\n═══INTERPERATOR═══\n");
             while (true)
             {
                 Console.Write(">");
                 string line = Console.ReadLine();
-                if (line == null || line == "") continue;
                 string command;
                 string arguments = "";
                 List<string> args_list = new List<string>();
-                if (line.Contains(' '))
+                if (line == null || line == "") { continue; }
+                if (line != null)
                 {
-                    command = line.Split(" ")[0];
-                    int isFirst = -1;
-                    foreach (string e in line.Split(" "))
+                    if (line.Contains(' '))
                     {
-                        isFirst++;
-                        if (isFirst == 0) continue;
-                        arguments += e + " ";
+                        command = line.Split(" ")[0];
+                        int isFirst = -1;
+                        foreach (string e in line.Split(" "))
+                        {
+                            isFirst++;
+                            if (isFirst == 0) continue;
+                            arguments += e + " ";
 
+                        }
+                        args_list.AddRange(arguments.Split("|"));
                     }
-                    args_list.AddRange(arguments.Split("|"));
+                    else
+                    {
+                        command = line;
+                        //args_list.Add("<null>");
+                    }
+                    Interperator(command, args_list, out _);
                 }
-                else
-                {
-                    command = line;
-                    //args_list.Add("<null>");
-                }
-                Interperator(command, args_list, out _);
             }
         }
 
@@ -106,35 +112,6 @@ namespace MentalCrash
             }
             int total_length = command.ToCharArray().Length;
             int current_cycle = 0;
-
-            //Checks
-
-
-            //isString
-            bool isString = false;
-
-            try
-            {
-                string firstElement = args_list[0];
-                bool startsWithQuote = firstElement.StartsWith("\"");
-                bool endsWithQuote = firstElement.EndsWith("\"");
-                string substring = firstElement.Substring(1, firstElement.Length - 2);
-                bool containsEscapedQuotes = substring.Contains("\"");
-
-                if (startsWithQuote && endsWithQuote && !containsEscapedQuotes)
-                {
-                    isString = true;
-                }
-                else
-                {
-                    isString = false;
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                isString = false;
-            }
 
             // Start of execution
             foreach (char c in command)
@@ -151,7 +128,25 @@ namespace MentalCrash
                 }
                 else if (c == 'w') //with x, its like the using directive
                 {
+                    if (args_list.Count == 0)
+                    {
+                        Console.WriteLine("Error; No Data Left In Tape, " + current_cycle.ToString() + " out of " + total_length.ToString() + " commands have been processed, fix the error and re-run the program");
+                        break;
+                    }
+
                     string fileName = args_list[0];
+                    if (!ItemChecks.IsString(fileName))
+                    {
+                        Console.WriteLine($"Error; Not a valid string");
+                        continue;
+                    }
+                    else
+                    {
+                        string substring = args_list[0].Substring(1, args_list[0].Length - 2);
+                        string cleanedString = substring.Replace("\"\"", "\"");
+                        fileName = cleanedString;
+                    }
+
                     if (!File.Exists(args_list[0]))
                     {
                         Console.WriteLine($"Error; File doesnt exist \'{fileName}\'");
@@ -192,11 +187,23 @@ namespace MentalCrash
                         break;
                     }
 
-                    if (isString)
+                    if (ItemChecks.IsString(args_list[0]))
                     {
                         string substring = args_list[0].Substring(1, args_list[0].Length - 2);
                         string cleanedString = substring.Replace("\"\"", "\"");
-                        Console.WriteLine(cleanedString);
+                    }
+                    else
+                    {
+                        string foundItem = variables.FirstOrDefault(item => item.StartsWith(args_list[0]));
+                        if (foundItem != null)
+                        {
+                            string varData = foundItem.Substring(foundItem.IndexOf('>') + 1).Trim();
+                            if (ItemChecks.IsString(varData))
+                            {
+                                varData = varData.Substring(1, varData.Length - 2);
+                            }
+                            Console.WriteLine(varData);
+                        }
                     }
 
                     args_list.RemoveAt(0);
@@ -206,7 +213,7 @@ namespace MentalCrash
                 else if (c == 'i')
                 {
                     Console.Write("input>");
-                    string? input = Console.ReadLine();
+                    string input = Console.ReadLine();
                     int inputLength = input.Length;
                     Console.SetCursorPosition(0, Console.CursorTop - 1);
                     Console.Write(new string(' ', inputLength + 7));
@@ -225,26 +232,38 @@ namespace MentalCrash
                         break;
                     }
                     string func_name = "";
+                    string func_params = "";
                     string func_code = "";
                     try
                     {
-                        func_name = args_list[0].Trim();
+                        func_name = args_list[0].Trim().Split(" ")[0];
+                        func_params = args_list[0].Trim().Split(" ")[1];
                         func_code = args_list[1];
                     }
                     catch
                     { }
-                    string foundItem = functions.FirstOrDefault(item => item.StartsWith(func_name + ">"));
+
+                    func_params = func_params.Substring(1, func_params.Length - 2);
+
+                    string foundItem = functions.FirstOrDefault(item => item.StartsWith(func_name + $" [{func_params}] " + ">"));
                     if (foundItem != null)
                     {
                         int index = functions.IndexOf(foundItem);
-                        List<string> arg_lists = new(foundItem.Substring(func_name.Length + 2).Split("|"));
+                        List<string> arg_lists = new(foundItem.Substring(func_name.Length + func_params.Length + 6).Split("|"));
                         string commands = arg_lists[0].Split(" ")[0];
                         string arguments = arg_lists[0].Substring(commands.Length + 1);
+                        if (func_code != null)
+                        {
+                            commands = "V" + commands;
+                            arguments = "str " + func_params + "|" + func_code + "|" + arguments;
+                        }
+                        Debug.WriteLine(arguments);
+                        Debug.WriteLine("\n" + commands);
                         Interperator(commands, new List<string>(arguments.Split("|")), out _);
                     }
                     else
                     {
-                        functions.Add(func_name + "> " + func_code);
+                        functions.Add(func_name + $" [{func_params}] " + "> " + func_code);
                     }
                 }
                 if (c == 'V')
@@ -254,20 +273,49 @@ namespace MentalCrash
                         Console.WriteLine("Error; No Data Left In Tape, " + current_cycle.ToString() + " out of " + total_length.ToString() + " commands have been processed, fix the error and re-run the program");
                         break;
                     }
+                    string var_type = "";
                     string var_name = "";
                     string var_code = "";
                     try
                     {
-                        var_name = args_list[0].Trim();
+                        var_type = args_list[0].Trim().Split(" ")[0];
+                        var_name = args_list[0].Trim().Split(" ")[1];
                         var_code = args_list[1];
                     }
                     catch
                     { }
+                    if (var_code != "")
+                    {
+                        if (var_type == "str")
+                        {
+                            if (!ItemChecks.IsString(var_code))
+                            {
+                                Console.WriteLine("NOT A FRICKING STRING DINGUS");
+                                continue;
+                            }
+                        }
+                    }
                     string foundItem = variables.FirstOrDefault(item => item.StartsWith(var_name + ">"));
                     if (foundItem != null)
-                    {
+                    {/*
+                      * INFO:
+                      * 
+                      * Now we will just change the value of the variable instead of displaying it, because it makes more sense really..
+                      * 
                         int index = variables.IndexOf(foundItem);
                         Console.WriteLine(variables[index].Substring((var_name + "> ").Length));
+                        args_list.RemoveRange(0, 2);
+                        */
+                        variables.Remove(foundItem);
+                        if (var_code.StartsWith(":"))
+                        {
+                            variables.Add(var_name + "> " + Convert.ToString(Interperator(var_code, null, out _)));
+                        }
+                        else
+                        {
+                            variables.Add(var_name + "> " + var_code);
+                        }
+                        args_list.RemoveRange(0, 2);
                     }
                     else
                     {
@@ -279,6 +327,7 @@ namespace MentalCrash
                         {
                             variables.Add(var_name + "> " + var_code);
                         }
+                        args_list.RemoveRange(0, 2);
                     }
                 }
                 if (c == 'I')
@@ -291,11 +340,32 @@ namespace MentalCrash
                     string condition = "";
                     string ifTrueCode = "";
                     string ifFalseCode = "";
+
                     try
                     {
-                        condition = args_list[0].Trim();
-                        ifTrueCode = args_list[1];
-                        ifFalseCode = args_list[2];
+                        string firstElement = args_list[0];
+                        string substring = firstElement.Substring(1, firstElement.Length - 2);
+                        bool startsWithQuote = firstElement.StartsWith("[");
+                        bool endsWithQuote = firstElement.EndsWith("]");
+                        bool containsEscapedQuotes = substring.Contains("[");
+                        bool containsEscapedQuotes2 = substring.Contains("]");
+
+                        if (startsWithQuote && endsWithQuote &&
+                            !(containsEscapedQuotes && containsEscapedQuotes2) ||
+                            !(containsEscapedQuotes || containsEscapedQuotes2))
+                        {
+                            string ifBlock = substring;
+                            if (!substring.Contains(','))
+                            {
+                                condition = ifBlock;
+                            }
+                            else
+                            {
+                                condition = ifBlock.Split(',')[0];
+                                ifTrueCode = ifBlock.Split(',')[1];
+                                ifFalseCode = ifBlock.Split(',')[2];
+                            }
+                        }
                     }
                     catch
                     { }
@@ -310,17 +380,17 @@ namespace MentalCrash
 
                     if (LHS_condition.StartsWith(":"))
                     {
-                        LHS_condition = Convert.ToString(Interperator(LHS_condition.Substring(1), null, out _));
+                        LHS_condition = Convert.ToString(Interperator(LHS_condition.Substring(1), new List<string>(new string[] { " " }), out _));
                     }
                     if (Operator == "==")
                     {
                         if (string.Equals(LHS_condition, RHS_condition))
                         {
-                            Interperator(ifTrueCode.Split(" ")[0], ifTrueCodeL, out _);
+                            Interperator(ifTrueCode.Trim().Split(" ")[0], ifTrueCodeL, out _);
                         }
                         else
                         {
-                            Interperator(ifFalseCode.Split(" ")[0], ifFalseCodeL, out _);
+                            Interperator(ifFalseCode.Trim().Split(" ")[0], ifFalseCodeL, out _);
                         }
                     }
                     else if (Operator == "!=")
@@ -334,7 +404,7 @@ namespace MentalCrash
                             Interperator(ifFalseCode.Split(" ")[0], ifFalseCodeL, out _);
                         }
                     }
-                    args_list.RemoveRange(0, 3);
+                    args_list.RemoveAt(0);
                 }
                 if (c == 'a' || c == 's' || c == 'm' || c == 'd')
                 {
