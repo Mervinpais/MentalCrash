@@ -5,44 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MC Docs</title>
-    <style>
-        /* Styles for the sidebar */
-        .sidebar {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            background-color: #f1f1f1;
-            padding: 10px;
-            width: 200px;
-            height: 100vh;
-        }
-
-        /* Styles for the main content */
-        .content {
-            margin-left: 220px;
-            padding: 20px;
-        }
-
-        code {
-            background-color: #202020;
-            color: white;
-            padding: 10px;
-            font-size: 20px;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-    <div class="sidebar">
-        <!-- Sidebar content goes here -->
-        <h2>Documentation</h2>
-        <a href="index.html">Main Page</a>
-        <ul>
-            <li><a href="#overview">Overview</a></li>
-            <li><a href="#usage">Usage</a></li>
-            <li><a href="#examples">Examples</a></li>
-        </ul>
-    </div>
+
 
     <div class="content">
         <!-- Your main content goes here -->
@@ -58,43 +25,23 @@
         <br /><br /><br />
         <div id="usage">
             <h2>Usage</h2>
-            <p>MentalCrash is not really supposed to be used for any.. "real" world apps, but you can try, here is a
-                basic Hello World! program in MentalCrash</p>
-            <code>
-                p "Hello World"
-            </code>
-            <br />
-            <br />
-            <p>
-                *For Versions v-0.2 and v-0.1
-                <code>p Hello World</code>
-            </p>
+            <p>MentalCrash is not really supposed to be used for any "real" world apps, but you can try. Here is a basic
+                Hello World! program in MentalCrash:</p>
+            <code>p "Hello World"</code>
+            <p>*For Versions v-0.2 and v-0.1:</p>
+            <code>p Hello World</code>
             <h3>Where could we use MentalCrash?</h3>
             <h4>Toy Programs</h4>
             <ol>
-                Examples
                 <li>A Cat program</li>
                 <li>uhhhhhhh</li>
             </ol>
-            <code>
-                f cat [str data]|p data
-                <br />
-                <br />
-                f cat [str data]|i
-            </code>
-            <p></p>
+            <code>f cat [str data]|p data<br /><br />&nbsp;f cat [str data]|i</code>
         </div>
     </div>
-
+    <script src="sidebar.js"></script>
     <script>
-        // JavaScript to adjust the sidebar position while scrolling
-        window.addEventListener('scroll', function () {
-            var sidebar = document.querySelector('.sidebar');
-            var content = document.querySelector('.content');
-            var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            sidebar.style.top = Math.max(10, 10 - scrollTop) + 'px';
-            content.style.marginTop = Math.max(0, 210 - scrollTop) + 'px';
-        });
+        addSidebar();
     </script>
 </body>
 
