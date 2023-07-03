@@ -5,20 +5,86 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MC Docs</title>
+    <style>
+        /* Styles for the sidebar */
+        .sidebar {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background-color: #f1f1f1;
+            padding: 10px;
+            width: 200px;
+            height: 100vh;
+        }
+
+        /* Styles for the main content */
+        .content {
+            margin-left: 220px;
+            padding: 20px;
+        }
+
+        code {
+            background-color: #202020;
+            color: white;
+            padding: 10px;
+            font-size: 20px;
+        }
+    </style>
 </head>
 
 <body>
-    <h1>MentalCrash Documentation</h1>
-    <p> What is MentalCrash?
-        MentalCrash is an (Esoteric) Programming language created by me, Mervin14. I made this as a challenge to create a programming language that is intentionally confusing for myself.
-    </p>
+    <div class="sidebar">
+        <!-- Sidebar content goes here -->
+        <h2>Documentation</h2>
+        <a href="index.html">Main Page</a>
+        <ul>
+            <li><a href="#overview">Overview</a></li>
+            <li><a href="#usage">Usage</a></li>
+            <li><a href="#examples">Examples</a></li>
+        </ul>
+    </div>
 
-    Here is the link for the python random code generator for mental crash, the thing is, this generates code that runs
-    on one line ONLY :O 💀
+    <div class="content">
+        <!-- Your main content goes here -->
+        <h1>MentalCrash Documentation</h1>
+        <div id="overview">
+            <p>What is MentalCrash? MentalCrash is an (Esoteric) Programming language created by me, Mervin14. I made
+                this as a challenge to create a programming language that is intentionally confusing for myself.</p>
+            <p>Here is the link for the python random code generator for MentalCrash, the thing is, this generates code
+                that runs on one line ONLY :O 💀</p>
+            <a href="https://replit.com/@Mervinpais/MentalCrash-Random-Code-Tester?v=1">Replit - MentalCrash Random Code
+                Tester - Mervinpais</a>
+        </div>
+        <br /><br /><br />
+        <div id="usage">
+            <h2>Usage</h2>
+            <p>MentalCrash is not really supposed to be used for any.. "real" world apps, but you can try, here is a
+                basic Hello World! program in MentalCrash</p>
+            <code>
+                p "Hello World"
+            </code>
+            <br />
+            <br />
+            <p>
+                *For Versions v-0.2 and v-0.1
+                <code>p Hello World</code>
+            </p>
+            <h3>Where could we use MentalCrash?</h3>
+            <h4>Toy Programs</h4>
+            <p></p>
+        </div>
+    </div>
 
-    <a href="https://replit.com/@Mervinpais/MentalCrash-Random-Code-Tester?v=1">
-        Replit - MentalCrash Random Code Tester - Mervinpais
-    </a>
+    <script>
+        // JavaScript to adjust the sidebar position while scrolling
+        window.addEventListener('scroll', function () {
+            var sidebar = document.querySelector('.sidebar');
+            var content = document.querySelector('.content');
+            var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            sidebar.style.top = Math.max(10, 10 - scrollTop) + 'px';
+            content.style.marginTop = Math.max(0, 210 - scrollTop) + 'px';
+        });
+    </script>
 </body>
 
 </html>
