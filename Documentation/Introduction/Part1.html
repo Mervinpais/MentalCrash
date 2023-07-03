@@ -1,0 +1,52 @@
+<dialog open>
+    <h2>(NOTE)</h2>
+    <h4>There is .txt version of this doc :)</h4>
+    <br>
+    <form method="dialog">
+        <button>OK</button>
+    </form>
+</dialog>
+
+<!DOCTYPE html>
+<html lang="en">
+<link rel="stylesheet" href="../default_style.css">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <h1>Documentation</h1>
+    <div class="main">
+        <h2>Introduction</h2>
+        <p>MentalCrash is a Esoteric<sup>
+                <info onclick="openDialog(1)">(?)</info>
+                <dialog class="normalDialog">
+                    <h2>Mervin here,</h2>
+                    <h4>As I am writing this (24th June 2023) I am unsure whether to call this programming language as
+                        "Esoteric" or not, As this DOES test the abilities of a computer program to be fully written in
+                        one line, but also can be used like a regular programming language</h4>
+                    <p>Is this a paradox?</p>
+                    <h4>As time will go on it will become more clear if this programming language is Esoteric or not
+                    </h4>
+                    <button onclick="closeDialog(this)">Close</button>
+                </dialog>
+            </sup></p>
+    </div>
+</body>
+
+</html>
+
+<script>
+    function openDialog(index) {
+        var dialog = document.querySelectorAll('dialog')[index];
+        dialog.showModal();
+    }
+
+    function closeDialog(element) {
+        var dialog = element.parentNode;
+        dialog.close();
+    }
+</script>

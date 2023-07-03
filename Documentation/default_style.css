@@ -1,0 +1,25 @@
+body {
+    background-color: #696969;
+    color: white;
+}
+.main {
+    background-color: #cccccc;
+    color: black;
+    width: 75%;
+}
+
+info {
+    color: #CC5500;
+    text-decoration: underline;
+}
+
+info:hover {
+    cursor: pointer;
+    background-color: black;
+    color: #226cff;
+}
+
+.normalDialog
+{
+    width: 50%;
+}
