@@ -22,20 +22,22 @@
         transition: transform 0.3s ease-in-out;
         font-size: 16px;
     }
-    
+
     .download-button {
         display: inline-block;
         padding: 10px 20px;
-        background-color: #4CAF50;
+        background-color: #949494;
         color: white;
         text-decoration: none;
         border-radius: 5px;
-        margin-top: 10px;
+        margin-top: 20px;
     }
 </style>
 <body>
     <h1>All commands, with explanation and examples</h1>
     <h3>No fancy JS, just Base HTML and CSS in one file, you can download this too!</h3>
+    <a href="#" class="download-button" onclick="downloadFile()">Download .txt version</a>
+    <br>
     <div class="container">
         <div class="command">
             <h2>p</h2>
@@ -50,5 +52,30 @@
             <code>Defines a heading</code>
         </div>
     </div>
-    <a href="all_commands.html" download class="download-button">Download File</a>
+
+    <script>
+        function downloadFile() {
+            // Get the content of the HTML file
+            const content = document.documentElement.outerHTML;
+
+            // Create a Blob to represent the file content
+            const blob = new Blob([content], { type: 'text/html' });
+
+            // Create a URL for the Blob
+            const url = URL.createObjectURL(blob);
+
+            // Create an anchor element to initiate the download
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'all_commands.html';
+
+            // Programmatically click the link to trigger the download
+            document.body.appendChild(link);
+            link.click();
+
+            // Clean up the URL and anchor
+            URL.revokeObjectURL(url);
+            link.remove();
+        }
+    </script>
 </body>
