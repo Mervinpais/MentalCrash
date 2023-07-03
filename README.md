@@ -1,9 +1,14 @@
 # MentalCrash
-### (Last Updated; 2 July 2023)
+### (Last Updated; 3 July 2023)
 ## Changelog:
 
 ### V-0.3
 
+- Comments are added using '!'
+	```mc
+	! This is a comment
+	! There are no multiline comments sadly :(
+	```
 - Strings now need* '"' (Double Quotes) on both sides
 - Ints now need* to be only numbers to work
 - If statement syntax update, Before;
@@ -13,6 +18,27 @@
 	Now;
 	```mc
 	I [(condition), (true condition), (false condition)]
+	```
+- Functions have been updated with params too!
+	```mc
+	f myFunction [<type> <variableName>]|<command to run>
+	```
+  Only one param can be used in a function but, you can reference the param variable;
+	```mc 
+	f textFunction [str e]|p e
+	```
+  You can reference functions both (i) without params and (ii) with params like the following;
+- (i)
+	```mc
+	f myFunc1|p "This was easy to program"
+	f myFunc1
+    ! Output: This was easy to program
+	```
+- (ii)
+	```mc
+	f myFunc2 [str e]|p e
+	f myFunc2 [str e]|"This took time to program in properly"
+	! Output: This took time to program in properly
 	```
 
 
