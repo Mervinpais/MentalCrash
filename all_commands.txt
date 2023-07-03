@@ -1,0 +1,12 @@
+MC (MentalCrash) Docs
+
+p
+print command
+Prints out text to the console
+Prints out text to the console
+
+i
+input command
+Gets user input
+i
+
