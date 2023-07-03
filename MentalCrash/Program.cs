@@ -147,7 +147,7 @@ namespace MentalCrash
                         fileName = cleanedString;
                     }
 
-                    if (!File.Exists(args_list[0]))
+                    if (!File.Exists(fileName))
                     {
                         Console.WriteLine($"Error; File doesnt exist \'{fileName}\'");
                         continue;
@@ -191,6 +191,11 @@ namespace MentalCrash
                     {
                         string substring = args_list[0].Substring(1, args_list[0].Length - 2);
                         string cleanedString = substring.Replace("\"\"", "\"");
+                        Console.WriteLine(cleanedString);
+                    }
+                    else if (ItemChecks.IsInt(args_list[0]))
+                    {
+                        Console.WriteLine(args_list[0]);
                     }
                     else
                     {
@@ -234,16 +239,25 @@ namespace MentalCrash
                     string func_name = "";
                     string func_params = "";
                     string func_code = "";
+
+                    bool paramsAvaliable = false;
                     try
                     {
+                        func_code = args_list[1];
                         func_name = args_list[0].Trim().Split(" ")[0];
                         func_params = args_list[0].Trim().Split(" ")[1];
-                        func_code = args_list[1];
+                        paramsAvaliable = true;
                     }
                     catch
-                    { }
+                    {
+                        func_name = args_list[0].Trim();
+                        Debug.WriteLine($"function \'{func_name}\' Doesnt need params");
+                    }
 
-                    func_params = func_params.Substring(1, func_params.Length - 2);
+                    if (paramsAvaliable == true)
+                    {
+                        func_params = func_params.Substring(1);
+                    }
 
                     string foundItem = functions.FirstOrDefault(item => item.StartsWith(func_name + $" [{func_params}] " + ">"));
                     if (foundItem != null)
@@ -252,10 +266,10 @@ namespace MentalCrash
                         List<string> arg_lists = new(foundItem.Substring(func_name.Length + func_params.Length + 6).Split("|"));
                         string commands = arg_lists[0].Split(" ")[0];
                         string arguments = arg_lists[0].Substring(commands.Length + 1);
-                        if (func_code != null)
+                        if (func_code != null && paramsAvaliable == true)
                         {
                             commands = "V" + commands;
-                            arguments = "str " + func_params + "|" + func_code + "|" + arguments;
+                            arguments = func_params + " " + arguments + "|" + func_code;
                         }
                         Debug.WriteLine(arguments);
                         Debug.WriteLine("\n" + commands);
@@ -290,7 +304,15 @@ namespace MentalCrash
                         {
                             if (!ItemChecks.IsString(var_code))
                             {
-                                Console.WriteLine("NOT A FRICKING STRING DINGUS");
+                                Console.WriteLine("Error: Not a string");
+                                continue;
+                            }
+                        }
+                        else if (var_type == "int")
+                        {
+                            if (!ItemChecks.IsInt(var_code))
+                            {
+                                Console.WriteLine("Error: Not an Int");
                                 continue;
                             }
                         }
@@ -307,28 +329,16 @@ namespace MentalCrash
                         args_list.RemoveRange(0, 2);
                         */
                         variables.Remove(foundItem);
-                        if (var_code.StartsWith(":"))
-                        {
-                            variables.Add(var_name + "> " + Convert.ToString(Interperator(var_code, null, out _)));
-                        }
-                        else
-                        {
-                            variables.Add(var_name + "> " + var_code);
-                        }
-                        args_list.RemoveRange(0, 2);
+                    }
+                    if (var_code.StartsWith(":"))
+                    {
+                        variables.Add(var_name + " (" + var_type + ")> " + Convert.ToString(Interperator(var_code, null, out _)));
                     }
                     else
                     {
-                        if (var_code.StartsWith(":"))
-                        {
-                            variables.Add(var_name + "> " + Convert.ToString(Interperator(var_code, null, out _)));
-                        }
-                        else
-                        {
-                            variables.Add(var_name + "> " + var_code);
-                        }
-                        args_list.RemoveRange(0, 2);
+                        variables.Add(var_name + " (" + var_type + ")> " + var_code);
                     }
+                    args_list.RemoveRange(0, 1);
                 }
                 if (c == 'I')
                 {
