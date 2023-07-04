@@ -232,6 +232,28 @@ namespace MentalCrash
                         }
                         message = message.Trim();
 
+                        if (!ItemChecks.IsString(message) && !ItemChecks.IsInt(message))
+                        {
+                            try
+                            {
+                                string foundItem = variables.FirstOrDefault(item => item.StartsWith(message));
+                                if (foundItem != null)
+                                {
+                                    string varData = foundItem.Substring(foundItem.IndexOf('>') + 1).Trim();
+                                    if (ItemChecks.IsString(varData))
+                                    {
+                                        varData = varData.Substring(1, varData.Length - 2);
+                                    }
+                                    message = varData.Trim();
+                                }
+                            }
+                            catch
+                            {
+                                Console.WriteLine("Error; Not a valid data type");
+                                break;
+                            }
+                        }
+
                         if (type == 0) ; //Nothing Lol
                         else if (type == 1) Console.Write($"{message}");
                         else if (type == 2) Console.Write($"{message}\n");
@@ -414,21 +436,24 @@ namespace MentalCrash
                         variables.Add(var_name + " (" + var_type + ")> " + var_code);
                     }
                     args_list.RemoveRange(0, 2);
-                    string Item2 = args_list[0];
+                    string Item2 = "";
                     string Item2_data = "";
                     try
                     {
                         if (args_list.Count > 1)
                         {
+                            Item2 = args_list[0];
                             Item2_data = args_list[1];
                         }
                         else
                         {
+                            Item2 = "";
                             Item2_data = "";
                         }
                     }
                     catch (Exception ex)
                     {
+                        Item2 = "";
                         Item2_data = "";
                     }
                     List<string> restOfArgs = new();
@@ -438,7 +463,10 @@ namespace MentalCrash
                         restOfArgs.Add(item);
                     }
                     args_list.Clear();
-                    args_list.Add(Item2);
+                    if (Item2 != "")
+                    {
+                        args_list.Add(Item2);
+                    }
                     if (Item2_data != "")
                     {
                         args_list.Add(Item2_data);
