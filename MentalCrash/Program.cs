@@ -1,6 +1,7 @@
 ﻿#pragma warning disable IDE0057 // Use range operator
 #pragma warning disable IDE0090 // Use 'new(...)'
 #nullable disable
+
 using System.Diagnostics;
 
 namespace MentalCrash
@@ -197,18 +198,15 @@ namespace MentalCrash
                     {
                         Console.WriteLine(args_list[0]);
                     }
-                    else
+                    string foundItem = variables.FirstOrDefault(item => item.StartsWith(args_list[0]));
+                    if (foundItem != null)
                     {
-                        string foundItem = variables.FirstOrDefault(item => item.StartsWith(args_list[0]));
-                        if (foundItem != null)
+                        string varData = foundItem.Substring(foundItem.IndexOf('>') + 1).Trim();
+                        if (ItemChecks.IsString(varData))
                         {
-                            string varData = foundItem.Substring(foundItem.IndexOf('>') + 1).Trim();
-                            if (ItemChecks.IsString(varData))
-                            {
-                                varData = varData.Substring(1, varData.Length - 2);
-                            }
-                            Console.WriteLine(varData);
+                            varData = varData.Substring(1, varData.Length - 2);
                         }
+                        Console.WriteLine(varData);
                     }
 
                     args_list.RemoveAt(0);
@@ -217,69 +215,154 @@ namespace MentalCrash
                 }
                 else if (c == 'i')
                 {
-                    Console.Write("input>");
+                    if (args_list.Count > 0)
+                    {
+                        string line = args_list[0];
+                        string message = line;
+                        int style = 0;
+                        int type = 1; //Default
+                        if (line.Contains("[") & line.Contains("]"))
+                        {
+                            message = line.Substring(0, line.IndexOf("["));
+                            type = Convert.ToInt32(line.Substring(line.IndexOf("[") + 1, line.IndexOf("]") - line.IndexOf("[") - 1));
+                        }
+                        if (line.Contains("(") & line.Contains(")"))
+                        {
+                            style = Convert.ToInt32(line.Substring(line.IndexOf("(") + 1, line.IndexOf(")") - line.IndexOf("(") - 1));
+                        }
+                        message = message.Trim();
+
+                        if (type == 0) ; //Nothing Lol
+                        else if (type == 1) Console.Write($"{message}");
+                        else if (type == 2) Console.Write($"{message}\n");
+                        else break;
+
+                        if (style == 0) ; //Nothing Lol
+                        else if (style == 1) Console.Write($">");
+                        else if (style == 2) Console.Write($">>>");
+                        else if (style == 3) Console.Write($":");
+                        else if (style == 4) Console.Write($":>");
+                        else if (style == 5) Console.Write($":>>>");
+                        else if (style == 6) Console.Write($"$");
+                        else if (style == 7) Console.Write($"$:");
+                        else if (style == 8) Console.Write($"-");
+                        else break;
+
+                        Console.Write(" ");
+                    }
+                    else
+                    {
+                        Console.Write("input>");
+                    }
                     string input = Console.ReadLine();
                     int inputLength = input.Length;
                     Console.SetCursorPosition(0, Console.CursorTop - 1);
-                    Console.Write(new string(' ', inputLength + 7));
+                    Console.Write(new string(' ', inputLength + 7 + 10));
                     Console.SetCursorPosition(0, Console.CursorTop);
                     Console.Write(input);
                     Console.SetCursorPosition(0, Console.CursorTop);
                     Console.WriteLine("\n");
                     output = input;
+                    args_list.RemoveAt(0);
                     return input;
                 }
-                else if (c == 'f')
+                else if (c == 'F')
                 {
+                    /*
+                     FORMAT;
+                        Declaring;
+                            F <functionName> [<typeOfVariable> <nameOfVariable, ...] (<command> <arguments>)
+                        Invoking;
+                            F <functionName> [<typeOfVariable> <nameOfVariable, ...] (<value1>, <value2>, ...)
+                     */
                     if (args_list.Count == 0)
                     {
-                        Console.WriteLine("Error; No Data Left In Tape, " + current_cycle.ToString() + " out of " + total_length.ToString() + " commands have been processed, fix the error and re-run the program");
+                        Console.WriteLine("Error: No Data Left In Tape, " + current_cycle.ToString() + " out of " + total_length.ToString() + " commands have been processed. Fix the error and re-run the program.");
                         break;
                     }
+                    string line = args_list[0].Trim();
                     string func_name = "";
                     string func_params = "";
                     string func_code = "";
 
-                    bool paramsAvaliable = false;
+                    bool paramsAvailable = false;
                     try
                     {
-                        func_code = args_list[1];
-                        func_name = args_list[0].Trim().Split(" ")[0];
-                        func_params = args_list[0].Trim().Split(" ")[1];
-                        paramsAvaliable = true;
+                        func_name = line.Substring(0, line.IndexOf('['));
+                        func_params = line.Substring(line.IndexOf('['), line.IndexOf(']') - line.IndexOf('[') + 1);
+                        func_code = line.Substring(line.IndexOf('('), line.IndexOf(')') - line.IndexOf('(') + 1);
+                        paramsAvailable = true;
                     }
                     catch
                     {
-                        func_name = args_list[0].Trim();
-                        Debug.WriteLine($"function \'{func_name}\' Doesnt need params");
+                        func_name = line.Substring(0, line.IndexOf('('));
+                        func_code = line.Substring(line.IndexOf('('), line.IndexOf(')') - line.IndexOf('(') + 1);
+                        Debug.WriteLine($"Function \'{func_name}\' doesn't need parameters.");
                     }
 
-                    if (paramsAvaliable == true)
+                    func_name = func_name.Trim();
+                    func_code = func_code.Trim();
+                    func_params = func_params.Trim();
+
+                    func_code = func_code.Substring(1, func_code.Length - 2);
+                    if (paramsAvailable)
                     {
-                        func_params = func_params.Substring(1);
+                        func_params = func_params.Substring(1, func_params.Length - 2);
                     }
 
                     string foundItem = functions.FirstOrDefault(item => item.StartsWith(func_name + $" [{func_params}] " + ">"));
                     if (foundItem != null)
                     {
                         int index = functions.IndexOf(foundItem);
-                        List<string> arg_lists = new(foundItem.Substring(func_name.Length + func_params.Length + 6).Split("|"));
+                        List<string> arg_lists = new List<string>(
+                            foundItem.Substring(func_name.Length + func_params.Length + 6).Split(",")
+                            );
                         string commands = arg_lists[0].Split(" ")[0];
                         string arguments = arg_lists[0].Substring(commands.Length + 1);
-                        if (func_code != null && paramsAvaliable == true)
+
+                        for (int i = 1; i < arg_lists.Count; i++)
                         {
-                            commands = "V" + commands;
-                            arguments = func_params + " " + arguments + "|" + func_code;
+                            arguments = arguments + "|" + arg_lists[i];
+                        }
+                        List<string> argumentsList = new List<string>();
+                        if (func_code != null && paramsAvailable)
+                        {
+                            for (int i = 0; i < arg_lists.Count; i++)
+                            {
+                                commands = "V" + commands;
+                            }
+                            bool error = false;
+                            for (int i = 0; i < arg_lists.Count; i++)
+                            {
+                                //argumentsList.Add(func_params.Split(',')[i] + "|" + func_code.Split(',')[i]);
+                                argumentsList.Add(func_params.Split(',')[i].Trim());
+                                try
+                                {
+                                    argumentsList.Add(func_code.Split(',')[i].Trim());
+                                }
+                                catch //If there is no value for a param
+                                {
+                                    Console.WriteLine($"Error; Value for param \'{func_params.Split(',')[i].Trim()}\' is Missing, all params must be set to a value if the function is invoked");
+                                    error = true;
+                                    break;
+                                }
+                            }
+                            if (error)
+                            {
+                                break;
+                            }
                         }
                         Debug.WriteLine(arguments);
                         Debug.WriteLine("\n" + commands);
-                        Interperator(commands, new List<string>(arguments.Split("|")), out _);
+                        output = "";
+                        return Interperator(commands, argumentsList, out _);
                     }
                     else
                     {
                         functions.Add(func_name + $" [{func_params}] " + "> " + func_code);
                     }
                 }
+
                 if (c == 'V')
                 {
                     if (args_list.Count == 0)
@@ -319,15 +402,7 @@ namespace MentalCrash
                     }
                     string foundItem = variables.FirstOrDefault(item => item.StartsWith(var_name + ">"));
                     if (foundItem != null)
-                    {/*
-                      * INFO:
-                      * 
-                      * Now we will just change the value of the variable instead of displaying it, because it makes more sense really..
-                      * 
-                        int index = variables.IndexOf(foundItem);
-                        Console.WriteLine(variables[index].Substring((var_name + "> ").Length));
-                        args_list.RemoveRange(0, 2);
-                        */
+                    {
                         variables.Remove(foundItem);
                     }
                     if (var_code.StartsWith(":"))
@@ -338,7 +413,38 @@ namespace MentalCrash
                     {
                         variables.Add(var_name + " (" + var_type + ")> " + var_code);
                     }
-                    args_list.RemoveRange(0, 1);
+                    args_list.RemoveRange(0, 2);
+                    string Item2 = args_list[0];
+                    string Item2_data = "";
+                    try
+                    {
+                        if (args_list.Count > 1)
+                        {
+                            Item2_data = args_list[1];
+                        }
+                        else
+                        {
+                            Item2_data = "";
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Item2_data = "";
+                    }
+                    List<string> restOfArgs = new();
+                    for (int i = 2; i < args_list.Count; i++)
+                    {
+                        string item = args_list[i];
+                        restOfArgs.Add(item);
+                    }
+                    args_list.Clear();
+                    args_list.Add(Item2);
+                    if (Item2_data != "")
+                    {
+                        args_list.Add(Item2_data);
+                    }
+                    args_list.Add(var_name);
+                    args_list.AddRange(restOfArgs);
                 }
                 if (c == 'I')
                 {

@@ -1,48 +1,40 @@
 # MentalCrash
-### (Last Updated; 3 July 2023)
+### (Last Updated; 5 July 2023)
 ## Changelog:
 
-### V-0.3
+### V-0.3.1
 
-- Comments are added using '!'
+- Updated Functions to accept multiple parameters and updated so everything can be in one argument
 	```mc
-	! This is a comment
-	! There are no multiline comments sadly :(
+	! Old code format; f <functionName> [<param1>]|<command> <arguments>
+	
+	F <functionName> [<param1>, <param2>, ...] (<command> <arg1>,<arg2>)
 	```
-- Strings now need* '"' (Double Quotes) on both sides
-- Ints now need* to be only numbers to work
-- If statement syntax update, Before;
+	\* Note That instead of '|' (ex; "pp "Hello World"|"Bye World"") we need to use ',' due to how arguments get split so :/
+	<br><br>
+- Added cool ways to edit how the 'i' (input command) with '[]' brackets
 	```mc
-	I (condition)|(true condition)|(false condition)
+		i Input command has got some style :D [1] (1)
+		!You can change the values above with the table given below this code
 	```
-	Now;
+	| Type | Result | Style | Result |
+	| ---- | ------ | ----- | ------ |
+	| 1    |   message    | 1     |   >    |
+	| 2    |   message\n  | 2     |   >>>  |
+	| x    |   x   | 3     |   :    |
+	| x    |   x   | 4     |   :>   |
+	| x    |   x   | 5     |  :>>>  |
+	| x    |   x   | 6     |   $    |
+	| x    |   x   | 7     |   $:   |
+	| x    |   x   | 8     |   -    |
+
 	```mc
-	I [(condition), (true condition), (false condition)]
-	```
-- Functions have been updated with params too!
-	```mc
-	f myFunction [<type> <variableName>]|<command to run>
-	```
-  Only one param can be used in a function but, you can reference the param variable;
-	```mc 
-	f textFunction [str e]|p e
-	```
-  You can reference functions both (i) without params and (ii) with params like the following;
-- (i)
-	```mc
-	f myFunc1|p "This was easy to program"
-	f myFunc1
-    ! Output: This was easy to program
-	```
-- (ii)
-	```mc
-	f myFunc2 [str e]|p e
-	f myFunc2 [str e]|"This took time to program in properly"
-	! Output: This took time to program in properly
+		i Input command has got some style :D [1] (1)
+		!Output:
+		Input command has got some style :D>
 	```
 
-
-\* It is not fully implemented around the language, but in the main parts only
+\* Ints and Strings are not fully implemented around the language, and the generic type still exists, but has been updated in the main parts only
 
 ## What is MentalCrash?
 MentalCrash is an (Esoteric) Programming language created by me, Mervin14. I made this as a challenge to create a programming language that is intentionally confusing for myself.
