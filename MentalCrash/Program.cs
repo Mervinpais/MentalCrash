@@ -390,7 +390,7 @@ namespace MentalCrash
                     }
                 }
 
-                if (c == 'V')
+                else if (c == 'V')
                 {
                     if (args_list.Count == 0)
                     {
@@ -417,7 +417,7 @@ namespace MentalCrash
                         {
                             if (!ItemChecks.IsString(var_code))
                             {
-                                Console.WriteLine("Error: Not a string");
+                                Console.WriteLine("Error: Not a String");
                                 continue;
                             }
                         }
@@ -429,8 +429,16 @@ namespace MentalCrash
                                 continue;
                             }
                         }
+                        else if (var_type == "bool")
+                        {
+                            if (!ItemChecks.IsBoolean(var_code))
+                            {
+                                Console.WriteLine("Error: Not a Bool");
+                                continue;
+                            }
+                        }
                     }
-                    string foundItem = variables.FirstOrDefault(item => item.StartsWith(var_name + ">"));
+                    string foundItem = variables.FirstOrDefault(item => item.StartsWith(var_name + " (" + var_type + ")> "));
                     if (foundItem != null)
                     {
                         variables.Remove(foundItem);
@@ -482,7 +490,7 @@ namespace MentalCrash
                     args_list.Add(var_name);
                     args_list.AddRange(restOfArgs);
                 }
-                if (c == 'I')
+                else if (c == 'I')
                 {
                     if (args_list.Count == 0)
                     {
@@ -612,7 +620,7 @@ namespace MentalCrash
 
                     args_list.RemoveAt(0);
                 }
-                if (c == 'a' || c == 's' || c == 'm' || c == 'd')
+                else if (c == 'a' || c == 's' || c == 'm' || c == 'd')
                 {
                     if (args_list.Count == 0)
                     {
