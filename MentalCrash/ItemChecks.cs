@@ -33,9 +33,9 @@ namespace MentalCrash
                 return false;
             }
         }
-        public static bool IsBoolean()
+        public static bool IsBoolean(object data)
         {
-            return false;
+            return bool.TryParse((string?)data, out _);
         }
         public static bool IsInt(string data)
         {

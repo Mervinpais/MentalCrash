@@ -237,15 +237,11 @@ namespace MentalCrash
                             try
                             {
                                 string foundItem = variables.FirstOrDefault(item => item.StartsWith(message));
-                                if (foundItem != null)
-                                {
-                                    string varData = foundItem.Substring(foundItem.IndexOf('>') + 1).Trim();
-                                    if (ItemChecks.IsString(varData))
-                                    {
-                                        varData = varData.Substring(1, varData.Length - 2);
-                                    }
-                                    message = varData.Trim();
-                                }
+                                if (foundItem == null) throw new Exception(); break;
+
+                                string varData = foundItem.Substring(foundItem.IndexOf('>') + 1);
+                                if (ItemChecks.IsString(varData)) varData = varData.Substring(1, varData.Length - 2);
+                                message = varData.Trim();
                             }
                             catch
                             {
@@ -402,7 +398,10 @@ namespace MentalCrash
                         var_code = args_list[1];
                     }
                     catch
-                    { }
+                    {
+                        Debug.WriteLine("In Variables; ERROR; All Variables were unables to be set properly");
+                        break;
+                    }
                     if (var_code != "")
                     {
                         if (var_type == "str")
@@ -489,8 +488,10 @@ namespace MentalCrash
                     {
                         string firstElement = args_list[0];
                         string substring = firstElement.Substring(1, firstElement.Length - 2);
+
                         bool startsWithQuote = firstElement.StartsWith("[");
                         bool endsWithQuote = firstElement.EndsWith("]");
+
                         bool containsEscapedQuotes = substring.Contains("[");
                         bool containsEscapedQuotes2 = substring.Contains("]");
 
@@ -511,43 +512,97 @@ namespace MentalCrash
                             }
                         }
                     }
-                    catch
-                    { }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"In If statement; ERROR; {ex}");
+                        break;
+                    }
                     List<string> ifTrueCodeL = new List<string>(ifTrueCode.Split(" ")[1..]);
                     List<string> ifFalseCodeL = new List<string>(ifFalseCode.Split(" ")[1..]);
                     ifTrueCodeL.RemoveAt(0);
                     ifFalseCodeL.RemoveAt(0);
 
+                    string LHSType = "";
+                    string RHSType = "";
+
                     string LHS_condition = condition.Split(" ")[0];
                     string RHS_condition = condition.Split(" ")[2];
                     string Operator = condition.Split(" ")[1];
+
+                    if (ItemChecks.IsString(LHS_condition)) LHSType = "string";
+                    else if (ItemChecks.IsInt(LHS_condition)) LHSType = "int";
+                    else if (ItemChecks.IsBoolean(LHS_condition)) LHSType = "bool";
+
+                    if (ItemChecks.IsString(RHS_condition)) RHSType = "string";
+                    else if (ItemChecks.IsInt(RHS_condition)) RHSType = "int";
+                    else if (ItemChecks.IsBoolean(RHS_condition)) RHSType = "bool";
 
                     if (LHS_condition.StartsWith(":"))
                     {
                         LHS_condition = Convert.ToString(Interperator(LHS_condition.Substring(1), new List<string>(new string[] { " " }), out _));
                     }
-                    if (Operator == "==")
+
+                    if (LHSType == RHSType)
                     {
-                        if (string.Equals(LHS_condition, RHS_condition))
+                        if (Operator == "==")
                         {
-                            Interperator(ifTrueCode.Trim().Split(" ")[0], ifTrueCodeL, out _);
+                            if (LHSType == "string")
+                            {
+                                if (string.Equals(LHS_condition, RHS_condition))
+                                { Interperator(ifTrueCode.Trim().Split(" ")[0], ifTrueCodeL, out _); }
+                                else
+                                { Interperator(ifFalseCode.Trim().Split(" ")[0], ifFalseCodeL, out _); }
+                            }
+                            else if (LHSType == "int" || LHSType == "bool")
+                            {
+                                if (LHS_condition == RHS_condition)
+                                { Interperator(ifTrueCode.Trim().Split(" ")[0], ifTrueCodeL, out _); }
+                                else
+                                { Interperator(ifFalseCode.Trim().Split(" ")[0], ifFalseCodeL, out _); }
+                            }
                         }
-                        else
+                        else if (Operator == "!=")
                         {
-                            Interperator(ifFalseCode.Trim().Split(" ")[0], ifFalseCodeL, out _);
+                            if (LHSType == RHSType)
+                            {
+                                if (LHSType == "string")
+                                {
+                                    if (!string.Equals(LHS_condition, RHS_condition))
+                                    { Interperator(ifTrueCode.Trim().Split(" ")[0], ifTrueCodeL, out _); }
+                                    else
+                                    { Interperator(ifFalseCode.Trim().Split(" ")[0], ifFalseCodeL, out _); }
+                                }
+                                else if (LHSType == "int" || LHSType == "bool")
+                                {
+                                    if (LHS_condition != RHS_condition)
+                                    { Interperator(ifTrueCode.Trim().Split(" ")[0], ifTrueCodeL, out _); }
+                                    else
+                                    { Interperator(ifFalseCode.Trim().Split(" ")[0], ifFalseCodeL, out _); }
+                                }
+                            }
                         }
                     }
-                    else if (Operator == "!=")
+                    else
                     {
-                        if (!string.Equals(LHS_condition, RHS_condition))
+                        if (LHSType == "string")
                         {
-                            Interperator(ifTrueCode.Split(" ")[0], ifTrueCodeL, out _);
+                            if (RHSType == "int") ErrorHandler.Error("Unable to do String vs Int Comparison", ConsoleColor.Red);
+                            else if (RHSType == "bool") ErrorHandler.Error("Unable to do String vs Bool Comparison", ConsoleColor.Red);
                         }
-                        else
+                        else if (LHSType == "int")
                         {
-                            Interperator(ifFalseCode.Split(" ")[0], ifFalseCodeL, out _);
+                            if (RHSType == "string") ErrorHandler.Error("Unable to do Int vs String Comparison", ConsoleColor.Red);
+                            else if (RHSType == "bool") ErrorHandler.Error("Unable to do Int vs Bool Comparison", ConsoleColor.Red);
                         }
+                        else if (LHSType == "bool")
+                        {
+                            if (RHSType == "string") ErrorHandler.Error("Unable to do Bool vs String Comparison", ConsoleColor.Red);
+                            else if (RHSType == "int") ErrorHandler.Error("Unable to do Bool vs Int Comparison", ConsoleColor.Red);
+                        }
+
+                        break;
                     }
+
                     args_list.RemoveAt(0);
                 }
                 if (c == 'a' || c == 's' || c == 'm' || c == 'd')
