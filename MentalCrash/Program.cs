@@ -494,7 +494,7 @@ namespace MentalCrash
                 {
                     if (args_list.Count == 0)
                     {
-                        Console.WriteLine("Error; No Data Left In Tape, " + current_cycle.ToString() + " out of " + total_length.ToString() + " commands have been processed, fix the error and re-run the program");
+                        ErrorHandler.Error("No Data Left In Tape, " + current_cycle.ToString() + " out of " + total_length.ToString() + " commands have been processed, fix the error and re-run the program", ConsoleColor.Red);
                         break;
                     }
                     string condition = "";
@@ -624,12 +624,12 @@ namespace MentalCrash
                 {
                     if (args_list.Count == 0)
                     {
-                        Console.WriteLine("Error; No Data Left In Tape, " + current_cycle.ToString() + " out of " + total_length.ToString() + " commands have been processed, fix the error and re-run the program");
+                        ErrorHandler.Error("No Data Left In Tape, " + current_cycle.ToString() + " out of " + total_length.ToString() + " commands have been processed, fix the error and re-run the program", ConsoleColor.Red);
                         break;
                     }
                     if (!args_list[0].StartsWith("[") || !args_list[0].EndsWith("]"))
                     {
-                        Console.WriteLine("Error; Data not valid");
+                        ErrorHandler.Error("Error; Data not valid", ConsoleColor.Red);
                         break;
                     }
                     string data = args_list[0].TrimEnd().TrimStart();
@@ -673,6 +673,7 @@ namespace MentalCrash
                         count++;
                     }
 
+                    numbers.RemoveAt(0);
                     if (c == 'a')
                     {
                         double sum = 0;
@@ -706,15 +707,26 @@ namespace MentalCrash
                     else if (c == 'd')
                     {
                         double quotient = Convert.ToDouble(data.Split(",")[0]);
-                        foreach (double n in numbers)
+                        for (int idx = 0; idx < numbers.Count; idx++)
                         {
+                            double n = numbers[idx];
                             try
                             {
                                 quotient /= n;
+                                if (n == 0)
+                                {
+                                    if (quotient == 0 || quotient == double.NaN || quotient == double.PositiveInfinity)
+                                    {
+                                        ErrorHandler.Error("You cant divide by Zero", ConsoleColor.Red);
+                                        ErrorHandler.Error($"{args_list[0]}", ConsoleColor.Red, false);
+                                        ErrorHandler.ErrorPosition(idx, ConsoleColor.Red);
+                                        return "";
+                                    }
+                                }
                             }
-                            catch (DivideByZeroException)
+                            catch (Exception)
                             {
-                                Console.WriteLine("Error; You cant divide by Zero");
+                                ErrorHandler.Error("You cant divide by Zero", ConsoleColor.Red);
                                 break;
                             }
                         }

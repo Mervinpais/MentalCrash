@@ -4,6 +4,10 @@
 
 ### V-0.3.1
 
+- Fixed Updating variables (a bug with finding the variable in the list)
+- Added variable support Strings, Int, (bools?), and variables
+- Added ErrorHandler.cs to make it eaiser to report errors in MentalCrash
+- Fixed If statement with True and False Condition Code
 - Updated Functions to accept multiple parameters and updated so everything can be in one argument
 	```mc
 	! Old code format; f <functionName> [<param1>]|<command> <arguments>
