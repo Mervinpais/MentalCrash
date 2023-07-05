@@ -212,6 +212,12 @@ namespace MentalCrash
                         Console.WriteLine(varData);
                         message = varData;
                     }
+                    else
+                    {
+                        ErrorHandler.Error("Unknown value cant be printed", ConsoleColor.Red);
+                        ErrorHandler.Error($"{c} {args_list[0]}", ConsoleColor.Red, false);
+                        ErrorHandler.ErrorPosition(1, ConsoleColor.Red);
+                    }
 
                     args_list.RemoveAt(0);
                     current_cycle++;
@@ -417,7 +423,9 @@ namespace MentalCrash
                         {
                             if (!ItemChecks.IsString(var_code))
                             {
-                                Console.WriteLine("Error: Not a String");
+                                ErrorHandler.Error("Error: Not a String", ConsoleColor.Red);
+                                ErrorHandler.Error($"{args_list[0]}|{args_list[1]}", ConsoleColor.Red, false);
+                                ErrorHandler.ErrorPosition(args_list[0].Length, ConsoleColor.Red);
                                 continue;
                             }
                         }
@@ -425,7 +433,9 @@ namespace MentalCrash
                         {
                             if (!ItemChecks.IsInt(var_code))
                             {
-                                Console.WriteLine("Error: Not an Int");
+                                ErrorHandler.Error("Error: Not an Int", ConsoleColor.Red);
+                                ErrorHandler.Error($"{args_list[0]}|{args_list[1]}", ConsoleColor.Red, false);
+                                ErrorHandler.ErrorPosition(args_list[0].Length, ConsoleColor.Red);
                                 continue;
                             }
                         }
@@ -433,7 +443,9 @@ namespace MentalCrash
                         {
                             if (!ItemChecks.IsBoolean(var_code))
                             {
-                                Console.WriteLine("Error: Not a Bool");
+                                ErrorHandler.Error("Error: Not a Bool", ConsoleColor.Red);
+                                ErrorHandler.Error($"{args_list[0]}|{args_list[1]}", ConsoleColor.Red, false);
+                                ErrorHandler.ErrorPosition(args_list[0].Length, ConsoleColor.Red);
                                 continue;
                             }
                         }
@@ -557,6 +569,7 @@ namespace MentalCrash
                     else if (ItemChecks.IsInt(RHS_condition)) RHSType = "int";
                     else if (ItemChecks.IsBoolean(RHS_condition)) RHSType = "bool";
 
+                    bool? IsEqual = null;
                     if (LHSType == RHSType)
                     {
                         if (Operator == "==")
@@ -564,17 +577,35 @@ namespace MentalCrash
                             if (LHSType == "string")
                             {
                                 if (string.Equals(LHS_condition, RHS_condition))
-                                { Interperator(ifTrueCode.Trim().Split(" ")[0], ifTrueCodeL, out _); }
+                                { IsEqual = true; }
                                 else
-                                { Interperator(ifFalseCode.Trim().Split(" ")[0], ifFalseCodeL, out _); }
+                                { IsEqual = false; }
                             }
                             else if (LHSType == "int" || LHSType == "bool")
                             {
-                                if (LHS_condition == RHS_condition)
+                                if (LHSType == "int")
+                                {
+                                    if (LHS_condition == RHS_condition)
+                                    { IsEqual = true; }
+                                    else
+                                    { IsEqual = false; }
+                                }
+                                else if (LHSType == "bool")
+                                {
+                                    if (bool.TryParse(LHS_condition, out _) == bool.TryParse(RHS_condition, out _))
+                                    { IsEqual = true; }
+                                    else
+                                    { IsEqual = false; }
+                                }
+                            }
+                            if (IsEqual != null)
+                            {
+                                if ((bool)IsEqual)
                                 { Interperator(ifTrueCode.Trim().Split(" ")[0], ifTrueCodeL, out _); }
                                 else
                                 { Interperator(ifFalseCode.Trim().Split(" ")[0], ifFalseCodeL, out _); }
                             }
+
                         }
                         else if (Operator == "!=")
                         {
@@ -589,10 +620,20 @@ namespace MentalCrash
                                 }
                                 else if (LHSType == "int" || LHSType == "bool")
                                 {
-                                    if (LHS_condition != RHS_condition)
-                                    { Interperator(ifTrueCode.Trim().Split(" ")[0], ifTrueCodeL, out _); }
-                                    else
-                                    { Interperator(ifFalseCode.Trim().Split(" ")[0], ifFalseCodeL, out _); }
+                                    if (LHSType == "int")
+                                    {
+                                        if (LHS_condition == RHS_condition)
+                                        { Interperator(ifTrueCode.Trim().Split(" ")[0], ifTrueCodeL, out _); }
+                                        else
+                                        { Interperator(ifFalseCode.Trim().Split(" ")[0], ifFalseCodeL, out _); }
+                                    }
+                                    else if (LHSType == "bool")
+                                    {
+                                        if (bool.TryParse(LHS_condition, out _) == bool.TryParse(RHS_condition, out _))
+                                        { Interperator(ifTrueCode.Trim().Split(" ")[0], ifTrueCodeL, out _); }
+                                        else
+                                        { Interperator(ifFalseCode.Trim().Split(" ")[0], ifFalseCodeL, out _); }
+                                    }
                                 }
                             }
                         }
@@ -615,6 +656,8 @@ namespace MentalCrash
                             else if (RHSType == "int") ErrorHandler.Error("Unable to do Bool vs Int Comparison", ConsoleColor.Red);
                         }
 
+                        ErrorHandler.Error($"{LHS_condition} vs {RHS_condition}", ConsoleColor.Red, false);
+                        ErrorHandler.ErrorPosition(LHS_condition.Length + 3, ConsoleColor.Red);
                         break;
                     }
 
@@ -638,8 +681,10 @@ namespace MentalCrash
 
 
                     int count = 0;
-                    foreach (string e in data.Split(","))
+                    string[] data_Array = data.Split(",");
+                    for (int i = 0; i < data_Array.Length; i++)
                     {
+                        string e = data_Array[i];
                         if (ItemChecks.IsDouble(e.Trim()) || ItemChecks.IsInt(e.Trim()))
                         {
                             numbers.Add(Convert.ToDouble(e.Trim()));
@@ -661,12 +706,16 @@ namespace MentalCrash
                                 else
                                 {
                                     ErrorHandler.Error("Not all Items in the list are numbers!", ConsoleColor.Red);
+                                    ErrorHandler.Error($"{string.Join(",", data_Array)}", ConsoleColor.Red, false);
+                                    ErrorHandler.ErrorPosition(i * 2, ConsoleColor.Red);
                                     return "";
                                 }
                             }
                             catch
                             {
                                 ErrorHandler.Error("Not all Items in the list are numbers!", ConsoleColor.Red);
+                                ErrorHandler.Error($"{string.Join(",", data_Array)}", ConsoleColor.Red, false);
+                                ErrorHandler.ErrorPosition(i * 2, ConsoleColor.Red);
                                 return "";
                             }
                         }
@@ -727,6 +776,8 @@ namespace MentalCrash
                             catch (Exception)
                             {
                                 ErrorHandler.Error("You cant divide by Zero", ConsoleColor.Red);
+                                ErrorHandler.Error($"{args_list[0]}", ConsoleColor.Red, false);
+                                ErrorHandler.ErrorPosition(idx, ConsoleColor.Red);
                                 break;
                             }
                         }

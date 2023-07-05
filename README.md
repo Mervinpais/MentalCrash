@@ -4,9 +4,10 @@
 
 ### V-0.3.1
 
-- Fixed Updating variables (a bug with finding the variable in the list)
-- Added variable support Strings, Int, (bools?), and variables
 - Added ErrorHandler.cs to make it eaiser to report errors in MentalCrash
+- Fixed Updating variables (a bug with finding the variable in the list)
+- Added Error Handling for print statements (there was never one initially for print statements)
+- Added variable support Strings, Int, (bools?), and variables
 - Fixed If statement with True and False Condition Code
 - Updated Functions to accept multiple parameters and updated so everything can be in one argument
 	```mc
@@ -39,6 +40,10 @@
 	```
 
 \* Ints and Strings are not fully implemented around the language, and the generic type still exists, but has been updated in the main parts only
+
+## Found Issues
+
+- If statements dont support multiple arguments and strings with spaces get split into 2
 
 ## What is MentalCrash?
 MentalCrash is an (Esoteric) Programming language created by me, Mervin14. I made this as a challenge to create a programming language that is intentionally confusing for myself.
