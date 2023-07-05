@@ -117,6 +117,7 @@ namespace MentalCrash
             // Start of execution
             foreach (char c in command)
             {
+                output = "";
                 if (c == ' ' || c == '\n')
                 {
                     continue;
@@ -124,7 +125,6 @@ namespace MentalCrash
                 else if (c == '!' && command == "!")
                 {
                     string line = command + " " + string.Join(" ", args_list.ToArray());
-                    output = null;
                     return null;
                 }
                 else if (c == 'w') //with x, its like the using directive
@@ -187,31 +187,35 @@ namespace MentalCrash
                         Console.WriteLine("Error; No Data Left In Tape, " + current_cycle.ToString() + " out of " + total_length.ToString() + " commands have been processed, fix the error and re-run the program");
                         break;
                     }
+                    string message = "";
 
                     if (ItemChecks.IsString(args_list[0]))
                     {
                         string substring = args_list[0].Substring(1, args_list[0].Length - 2);
                         string cleanedString = substring.Replace("\"\"", "\"");
                         Console.WriteLine(cleanedString);
+                        message = cleanedString;
                     }
                     else if (ItemChecks.IsInt(args_list[0]))
                     {
                         Console.WriteLine(args_list[0]);
+                        message = args_list[0];
                     }
-                    string foundItem = variables.FirstOrDefault(item => item.StartsWith(args_list[0]));
-                    if (foundItem != null)
+                    else if (variables.FirstOrDefault(item => item.StartsWith(args_list[0])) != null)
                     {
+                        var foundItem = variables.FirstOrDefault(item => item.StartsWith(args_list[0]));
                         string varData = foundItem.Substring(foundItem.IndexOf('>') + 1).Trim();
                         if (ItemChecks.IsString(varData))
                         {
                             varData = varData.Substring(1, varData.Length - 2);
                         }
                         Console.WriteLine(varData);
+                        message = varData;
                     }
 
                     args_list.RemoveAt(0);
                     current_cycle++;
-                    continue;
+                    return message;
                 }
                 else if (c == 'i')
                 {
@@ -221,52 +225,59 @@ namespace MentalCrash
                         string message = line;
                         int style = 0;
                         int type = 1; //Default
-                        if (line.Contains("[") & line.Contains("]"))
+                        if (line != "")
                         {
-                            message = line.Substring(0, line.IndexOf("["));
-                            type = Convert.ToInt32(line.Substring(line.IndexOf("[") + 1, line.IndexOf("]") - line.IndexOf("[") - 1));
-                        }
-                        if (line.Contains("(") & line.Contains(")"))
-                        {
-                            style = Convert.ToInt32(line.Substring(line.IndexOf("(") + 1, line.IndexOf(")") - line.IndexOf("(") - 1));
-                        }
-                        message = message.Trim();
-
-                        if (!ItemChecks.IsString(message) && !ItemChecks.IsInt(message))
-                        {
-                            try
+                            if (line.Contains("[") & line.Contains("]"))
                             {
-                                string foundItem = variables.FirstOrDefault(item => item.StartsWith(message));
-                                if (foundItem == null) throw new Exception(); break;
-
-                                string varData = foundItem.Substring(foundItem.IndexOf('>') + 1);
-                                if (ItemChecks.IsString(varData)) varData = varData.Substring(1, varData.Length - 2);
-                                message = varData.Trim();
+                                message = line.Substring(0, line.IndexOf("["));
+                                type = Convert.ToInt32(line.Substring(line.IndexOf("[") + 1, line.IndexOf("]") - line.IndexOf("[") - 1));
                             }
-                            catch
+                            if (line.Contains("(") & line.Contains(")"))
                             {
-                                Console.WriteLine("Error; Not a valid data type");
-                                break;
+                                style = Convert.ToInt32(line.Substring(line.IndexOf("(") + 1, line.IndexOf(")") - line.IndexOf("(") - 1));
                             }
+                            message = message.Trim();
+
+                            if (!ItemChecks.IsString(message) && !ItemChecks.IsInt(message))
+                            {
+                                try
+                                {
+                                    string foundItem = variables.FirstOrDefault(item => item.StartsWith(message));
+                                    if (foundItem == null) throw new Exception(); break;
+
+                                    string varData = foundItem.Substring(foundItem.IndexOf('>') + 1);
+                                    if (ItemChecks.IsString(varData)) varData = varData.Substring(1, varData.Length - 2);
+                                    message = varData.Trim();
+                                }
+                                catch
+                                {
+                                    Console.WriteLine("Error; Not a valid data type");
+                                    break;
+                                }
+                            }
+
+                            if (type == 0) ; //Nothing Lol
+                            else if (type == 1) Console.Write($"{message}");
+                            else if (type == 2) Console.Write($"{message}\n");
+                            else break;
+
+                            if (style == 0) ; //Nothing Lol
+                            else if (style == 1) Console.Write($">");
+                            else if (style == 2) Console.Write($">>>");
+                            else if (style == 3) Console.Write($":");
+                            else if (style == 4) Console.Write($":>");
+                            else if (style == 5) Console.Write($":>>>");
+                            else if (style == 6) Console.Write($"$");
+                            else if (style == 7) Console.Write($"$:");
+                            else if (style == 8) Console.Write($"-");
+                            else break;
+
+                            Console.Write(" ");
                         }
-
-                        if (type == 0) ; //Nothing Lol
-                        else if (type == 1) Console.Write($"{message}");
-                        else if (type == 2) Console.Write($"{message}\n");
-                        else break;
-
-                        if (style == 0) ; //Nothing Lol
-                        else if (style == 1) Console.Write($">");
-                        else if (style == 2) Console.Write($">>>");
-                        else if (style == 3) Console.Write($":");
-                        else if (style == 4) Console.Write($":>");
-                        else if (style == 5) Console.Write($":>>>");
-                        else if (style == 6) Console.Write($"$");
-                        else if (style == 7) Console.Write($"$:");
-                        else if (style == 8) Console.Write($"-");
-                        else break;
-
-                        Console.Write(" ");
+                        else
+                        {
+                            Console.Write("input>");
+                        }
                     }
                     else
                     {
@@ -280,7 +291,6 @@ namespace MentalCrash
                     Console.Write(input);
                     Console.SetCursorPosition(0, Console.CursorTop);
                     Console.WriteLine("\n");
-                    output = input;
                     args_list.RemoveAt(0);
                     return input;
                 }
@@ -372,7 +382,6 @@ namespace MentalCrash
                         }
                         Debug.WriteLine(arguments);
                         Debug.WriteLine("\n" + commands);
-                        output = "";
                         return Interperator(commands, argumentsList, out _);
                     }
                     else
@@ -506,9 +515,9 @@ namespace MentalCrash
                             }
                             else
                             {
-                                condition = ifBlock.Split(',')[0];
-                                ifTrueCode = ifBlock.Split(',')[1];
-                                ifFalseCode = ifBlock.Split(',')[2];
+                                condition = ifBlock.Split(',')[0].Trim();
+                                ifTrueCode = ifBlock.Split(',')[1].Trim();
+                                ifFalseCode = ifBlock.Split(',')[2].Trim();
                             }
                         }
                     }
@@ -519,8 +528,6 @@ namespace MentalCrash
                     }
                     List<string> ifTrueCodeL = new List<string>(ifTrueCode.Split(" ")[1..]);
                     List<string> ifFalseCodeL = new List<string>(ifFalseCode.Split(" ")[1..]);
-                    ifTrueCodeL.RemoveAt(0);
-                    ifFalseCodeL.RemoveAt(0);
 
                     string LHSType = "";
                     string RHSType = "";
@@ -529,6 +536,11 @@ namespace MentalCrash
                     string RHS_condition = condition.Split(" ")[2];
                     string Operator = condition.Split(" ")[1];
 
+                    if (LHS_condition.StartsWith(":"))
+                    {
+                        LHS_condition = Convert.ToString(Interperator(LHS_condition.Substring(1), new List<string>(new string[] { " " }), out _));
+                    }
+
                     if (ItemChecks.IsString(LHS_condition)) LHSType = "string";
                     else if (ItemChecks.IsInt(LHS_condition)) LHSType = "int";
                     else if (ItemChecks.IsBoolean(LHS_condition)) LHSType = "bool";
@@ -536,11 +548,6 @@ namespace MentalCrash
                     if (ItemChecks.IsString(RHS_condition)) RHSType = "string";
                     else if (ItemChecks.IsInt(RHS_condition)) RHSType = "int";
                     else if (ItemChecks.IsBoolean(RHS_condition)) RHSType = "bool";
-
-                    if (LHS_condition.StartsWith(":"))
-                    {
-                        LHS_condition = Convert.ToString(Interperator(LHS_condition.Substring(1), new List<string>(new string[] { " " }), out _));
-                    }
 
                     if (LHSType == RHSType)
                     {
@@ -612,7 +619,7 @@ namespace MentalCrash
                         Console.WriteLine("Error; No Data Left In Tape, " + current_cycle.ToString() + " out of " + total_length.ToString() + " commands have been processed, fix the error and re-run the program");
                         break;
                     }
-                    if (!args_list[0].StartsWith("[") && !args_list[0].EndsWith("]"))
+                    if (!args_list[0].StartsWith("[") || !args_list[0].EndsWith("]"))
                     {
                         Console.WriteLine("Error; Data not valid");
                         break;
@@ -621,72 +628,75 @@ namespace MentalCrash
                     data = data.Substring(1, data.Length - 2);
                     List<double> numbers = new List<double>();
 
-                    if (c == 'a')
+
+                    int count = 0;
+                    foreach (string e in data.Split(","))
                     {
-                        foreach (string e in data.Split(","))
+                        if (ItemChecks.IsDouble(e.Trim()) || ItemChecks.IsInt(e.Trim()))
                         {
                             numbers.Add(Convert.ToDouble(e.Trim()));
                         }
+                        else
+                        {
+                            try
+                            {
+                                string foundItem = variables.FirstOrDefault(item => item.StartsWith(args_list[0]));
+                                if (foundItem != null)
+                                {
+                                    string varData = foundItem.Substring(foundItem.IndexOf('>') + 1).Trim();
+                                    if (ItemChecks.IsString(varData))
+                                    {
+                                        varData = varData.Substring(1, varData.Length - 2);
+                                    }
+                                    numbers.Add(Convert.ToDouble(varData.Trim()));
+                                }
+                                else
+                                {
+                                    ErrorHandler.Error("Not all Items in the list are numbers!", ConsoleColor.Red);
+                                    return "";
+                                }
+                            }
+                            catch
+                            {
+                                ErrorHandler.Error("Not all Items in the list are numbers!", ConsoleColor.Red);
+                                return "";
+                            }
+                        }
+                        count++;
+                    }
+
+                    if (c == 'a')
+                    {
                         double sum = 0;
                         foreach (double n in numbers)
                         {
                             sum += n;
                         }
-                        Console.WriteLine(sum);
                         args_list.RemoveAt(0);
+                        return sum;
                     }
                     else if (c == 's')
                     {
-                        int count = 0;
-                        foreach (string e in data.Split(","))
-                        {
-                            if (count == 0)
-                            {
-                                count++; continue;
-                            }
-                            numbers.Add(Convert.ToDouble(e.Trim()));
-                            count++;
-                        }
                         double difference = Convert.ToDouble(data.Split(",")[0]);
                         foreach (double n in numbers)
                         {
                             difference -= n;
                         }
-                        Console.WriteLine(difference);
                         args_list.RemoveAt(0);
+                        return difference;
                     }
                     else if (c == 'm')
                     {
-                        int count = 0;
-                        foreach (string e in data.Split(","))
-                        {
-                            if (count == 0)
-                            {
-                                count++; continue;
-                            }
-                            numbers.Add(Convert.ToDouble(e.Trim()));
-                            count++;
-                        }
                         double product = Convert.ToDouble(data.Split(",")[0]);
                         foreach (double n in numbers)
                         {
                             product *= n;
                         }
-                        Console.WriteLine(product);
                         args_list.RemoveAt(0);
+                        return product;
                     }
                     else if (c == 'd')
                     {
-                        int count = 0;
-                        foreach (string e in data.Split(","))
-                        {
-                            if (count == 0)
-                            {
-                                count++; continue;
-                            }
-                            numbers.Add(Convert.ToDouble(e.Trim()));
-                            count++;
-                        }
                         double quotient = Convert.ToDouble(data.Split(",")[0]);
                         foreach (double n in numbers)
                         {
@@ -700,8 +710,8 @@ namespace MentalCrash
                                 break;
                             }
                         }
-                        Console.WriteLine(quotient);
                         args_list.RemoveAt(0);
+                        return quotient;
                     }
                 }
                 else if (c == '.')

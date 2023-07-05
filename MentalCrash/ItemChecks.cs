@@ -55,5 +55,23 @@ namespace MentalCrash
                 return false;
             }
         }
+        public static bool IsDouble(string data)
+        {
+            try
+            {
+                if (double.TryParse(data, out _) == true)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }
