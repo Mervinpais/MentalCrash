@@ -26,15 +26,17 @@
             <h3>Function Creation</h3>
             <p>The <code>'f'</code> command is used to create functions. Functions can be defined with or without parameters.</p>
             <p>Function without parameters:</p>
-            <code>f helloWorldFunction|p "Hello World!"</code> (Creates a function called 'helloWorldFunction' that prints "Hello World!")
+            <code>f helloWorldFunction (p "Hello World!")</code> (Creates a function called 'helloWorldFunction' that prints "Hello World!")
             <p>Function with parameters:</p>
-            <code>f sayFunction [str e]|p e</code> (Creates a function called 'sayFunction' that takes a string parameter 'e' and prints its value)<br>
-            <code>f sayFunction [str e]|p "Hello World! using say function"</code> (Creates a function called 'sayFunction' that takes a string parameter 'e' and prints a custom message)
+            <code>f sayFunction [str e] (p e)</code> (Creates a function called 'sayFunction' that takes a string parameter 'e' and prints its value)<br>
+            <code>f sayFunction [str e] (p "Hello World! using say function")</code> (Creates a function called 'sayFunction' that takes a string parameter 'e' and prints a custom message)
             <h3>If Statement</h3>
             <p>The <code>'I'</code> command is used for conditional statements. It evaluates a condition and executes different code depending on whether the condition is true or false.</p>
             <p>Example:</p>
             <code>I [1 == 1, p "1 equals 1", "1 does NOT equal 1"]</code> (Checks if 1 equals 1, and prints "1 equals 1" if true, or "1 does NOT equal 1" if false)<br>
-            <code>I [-2 == 2, p "-2 equals 2", "-2 doesn't equal 2"]</code> (Checks if -2 equals 2, and prints "-2 equals 2" if true, or "-2 doesn't equal 2" if false)
+            <code>I [-2 == 2, p "-2 equals 2", "-2 doesn't equal 2"]</code> (Checks if -2 equals 2, and prints "-2 equals 2" if true, or "-2 doesn't equal 2" if false)<br>
+            <code>I [1 == "1", p "1 equals \"1\"", "1 does NOT equal \"1\""]</code><br>
+            <code>I [true == false, p "true equals false", "true doesn't equal false"]</code><br>
         </div>
         <br>
 

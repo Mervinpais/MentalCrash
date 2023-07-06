@@ -7,8 +7,14 @@
     code {
         background-color: #202020;
         color: white;
-        padding: 5px;
+        padding: 7px;
         border-radius: 5px;
+    }
+    .code {
+        background-color: #202020;
+        color: white;
+        padding: 7px;
+        text-align: left;
     }
 
     .container {
@@ -21,6 +27,7 @@
         border: 1px solid black;
         transition: transform 0.3s ease-in-out;
         font-size: 16px;
+        text-align: left;
     }
 
     .download-button {
@@ -36,46 +43,77 @@
 <body>
     <h1>All commands, with explanation and examples</h1>
     <h3>No fancy JS, just Base HTML and CSS in one file, you can download this too!</h3>
-    <a href="#" class="download-button" onclick="downloadFile()">Download .txt version</a>
-    <br>
+    <a href="#" class="download-button" onclick="downloadFile('normal')">Download .txt version</a>
+    <h4>Also if you want to use this with LLMA or AI's like ChatGPT or Whatever Model you can use to generate code based on documentation</h4>
+    <a href="#" class="download-button" onclick="downloadFile('chatgpt')">Download ChatGPT/LLMA compatalbe .txt version</a>
+    <br><br>
     <div class="container">
         <div class="command">
             <h2>p</h2>
             <h3>print command</h3>
             <p>Prints out text to the console</p>
-            <code>Prints out text to the console</code>
+            <div class="code">
+                <code>p &lt;string/int/bool&gt;</code>
+            </div>
         </div>
         <div class="command">
             <h2>i</h2>
             <h3>input command</h3>
             <p>Gets user input</p>
-            <code>i</code>
+            <div class="code">
+                <code>i [&lt;0/1/2&gt;] (&lt;0/1/2/3/4/5/6/7/8&gt;)</code>
+            </div>
+        </div>
+        <div class="command">
+            <h2>w</h2>
+            <h3>'with' command</h3>
+            <p>Similar to the "Using" or "Import" command except it runs the code in the file and then only executes the rest of the code</p>
+            <div class="code">
+                <code>w &lt;filepath&gt;</code>
+            </div>
+        </div>
+        <div class="command">
+            <h2>.</h2>
+            <h3>exit command</h3>
+            <p>Exits the current program</p>
+            <div class="code">
+                <code>.</code>
+            </div>
+        </div>
+        <div class="command">
+            <h2>I</h2>
+            <h3>if command</h3>
+            <p>Coditional statements, if condition is true, run the true condition code, else run the false condition code</p>
+            <div class="code">
+                <code>.</code>
+            </div>
         </div>
     </div>
 
     <script>
-        function downloadFile() {
-            // Get the content of the HTML file
-            const content = document.documentElement.outerHTML;
+        function downloadFile(type) {
+            let url = 'all_commands.txt';
+            if (type == 'normal')
+            {
+                url = 'all_commands.txt';
+            }
+            else if (type == 'chatgpt')
+            {
+                url = 'chatgpt_all_commands.txt';
+            }
 
-            // Create a Blob to represent the file content
-            const blob = new Blob([content], { type: 'text/html' });
-
-            // Create a URL for the Blob
-            const url = URL.createObjectURL(blob);
-
-            // Create an anchor element to initiate the download
-            const link = document.createElement('a');
-            link.href = url;
+        const link = document.createElement('a');
+        link.href = url;
+        if (type == 'normal')
+        {
             link.download = 'all_commands.txt';
-
-            // Programmatically click the link to trigger the download
-            document.body.appendChild(link);
-            link.click();
-
-            // Clean up the URL and anchor
-            URL.revokeObjectURL(url);
-            link.remove();
         }
+        else if (type == 'chatgpt')
+        {
+            link.download = 'chatgpt_all_commands.txt';
+        }
+
+        link.click();
+    }
     </script>
 </body>

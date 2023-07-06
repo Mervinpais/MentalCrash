@@ -3,10 +3,20 @@ MC (MentalCrash) Docs
 p
 print command
 Prints out text to the console
-Prints out text to the console
+p <string/int/bool>
 
 i
 input command
 Gets user input
-i
+i [<0/1/2>] (<0/1/2/3/4/5/6/7/8>)
+
+w
+'with' command
+Similar to the "Using" or "Import" command except it runs the code in the file and then only executes the rest of the code
+w <filepath>
+
+.
+exit command
+Exits the current program
+.
 
