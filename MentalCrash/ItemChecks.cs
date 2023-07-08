@@ -33,6 +33,10 @@ namespace MentalCrash
                 return false;
             }
         }
+        public static bool IsCommand(string data)
+        {
+            return data.StartsWith(":") && !(data.StartsWith(": "));
+        }
         public static bool IsBoolean(object data)
         {
             return bool.TryParse((string?)data, out _);

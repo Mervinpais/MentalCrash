@@ -1,5 +1,4 @@
 ﻿#pragma warning disable IDE0057 // Use range operator
-#pragma warning disable IDE0090 // Use 'new(...)'
 #nullable disable
 
 using System.Diagnostics;
@@ -10,6 +9,7 @@ namespace MentalCrash
     {
         public static List<string> functions = new List<string>();
         public static List<string> variables = new List<string>();
+
         static void Main(string[] args)
         {
             if (args.Length != 0)
@@ -103,7 +103,7 @@ namespace MentalCrash
             }
         }
 
-        public static object Interperator(string command, List<string> args_list, out object output)
+        public static object Interperator(string command, List<string> args_list, out object output, bool dontReturn = false)
         {
             List<string> cleanedOut = new List<string>(args_list);
             args_list.Clear();
@@ -201,6 +201,14 @@ namespace MentalCrash
                         Console.WriteLine(args_list[0]);
                         message = args_list[0];
                     }
+                    else if (ItemChecks.IsCommand(args_list[0]))
+                    {
+                        string cleanedCmd = args_list[0].Split(' ')[0].Substring(1);
+
+                        object InterperatorResult = Interperator(cleanedCmd, new List<string>() { string.Join(" ", args_list[0].Split(' ')[1..]) }, out _);
+                        Console.WriteLine(InterperatorResult);
+                        message = Convert.ToString(InterperatorResult);
+                    }
                     else if (variables.FirstOrDefault(item => item.StartsWith(args_list[0])) != null)
                     {
                         var foundItem = variables.FirstOrDefault(item => item.StartsWith(args_list[0]));
@@ -221,13 +229,17 @@ namespace MentalCrash
 
                     args_list.RemoveAt(0);
                     current_cycle++;
-                    return message;
+                    if (!dontReturn)
+                    {
+                        return message;
+                    }
                 }
                 else if (c == 'i')
                 {
                     if (args_list.Count > 0)
                     {
                         string line = args_list[0];
+                        args_list.RemoveAt(0);
                         string message = line;
                         int style = 0;
                         int type = 1; //Default
@@ -249,7 +261,10 @@ namespace MentalCrash
                                 try
                                 {
                                     string foundItem = variables.FirstOrDefault(item => item.StartsWith(message));
-                                    if (foundItem == null) throw new Exception(); break;
+                                    if (foundItem == null)
+                                    {
+                                        throw new Exception();
+                                    }
 
                                     string varData = foundItem.Substring(foundItem.IndexOf('>') + 1);
                                     if (ItemChecks.IsString(varData)) varData = varData.Substring(1, varData.Length - 2);
@@ -262,21 +277,25 @@ namespace MentalCrash
                                 }
                             }
 
-                            if (type == 0) ; //Nothing Lol
-                            else if (type == 1) Console.Write($"{message}");
-                            else if (type == 2) Console.Write($"{message}\n");
-                            else break;
+                            if (type != 0)
+                            {
+                                if (type == 1) Console.Write($"{message}");
+                                else if (type == 2) Console.Write($"{message}\n");
+                                else break;
+                            }
 
-                            if (style == 0) ; //Nothing Lol
-                            else if (style == 1) Console.Write($">");
-                            else if (style == 2) Console.Write($">>>");
-                            else if (style == 3) Console.Write($":");
-                            else if (style == 4) Console.Write($":>");
-                            else if (style == 5) Console.Write($":>>>");
-                            else if (style == 6) Console.Write($"$");
-                            else if (style == 7) Console.Write($"$:");
-                            else if (style == 8) Console.Write($"-");
-                            else break;
+                            if (style != 0)
+                            {
+                                if (style == 1) Console.Write($">");
+                                else if (style == 2) Console.Write($">>>");
+                                else if (style == 3) Console.Write($":");
+                                else if (style == 4) Console.Write($":>");
+                                else if (style == 5) Console.Write($":>>>");
+                                else if (style == 6) Console.Write($"$");
+                                else if (style == 7) Console.Write($"$:");
+                                else if (style == 8) Console.Write($"-");
+                                else break;
+                            }
 
                             Console.Write(" ");
                         }
@@ -297,7 +316,6 @@ namespace MentalCrash
                     Console.Write(input);
                     Console.SetCursorPosition(0, Console.CursorTop);
                     Console.WriteLine("\n");
-                    args_list.RemoveAt(0);
                     return input;
                 }
                 else if (c == 'F')
@@ -320,25 +338,33 @@ namespace MentalCrash
                     string func_code = "";
 
                     bool paramsAvailable = false;
-                    try
+                    if (line.Contains("[") && line.Contains("("))
                     {
                         func_name = line.Substring(0, line.IndexOf('['));
                         func_params = line.Substring(line.IndexOf('['), line.IndexOf(']') - line.IndexOf('[') + 1);
                         func_code = line.Substring(line.IndexOf('('), line.IndexOf(')') - line.IndexOf('(') + 1);
                         paramsAvailable = true;
                     }
-                    catch
+                    else if (!line.Contains("[") && line.Contains("("))
                     {
                         func_name = line.Substring(0, line.IndexOf('('));
                         func_code = line.Substring(line.IndexOf('('), line.IndexOf(')') - line.IndexOf('(') + 1);
                         Debug.WriteLine($"Function \'{func_name}\' doesn't need parameters.");
+                        paramsAvailable = false;
+                    }
+                    else if (!line.Contains("[") && !line.Contains("("))
+                    {
+                        func_name = line.Trim();
+                        Debug.WriteLine($"Function \'{func_name}\' doesn't need parameters or code.");
+                        paramsAvailable = false;
                     }
 
                     func_name = func_name.Trim();
-                    func_code = func_code.Trim();
-                    func_params = func_params.Trim();
+                    if (line.Contains("(")) func_code = func_code.Trim();
+                    if (line.Contains("[")) func_params = func_params.Trim();
 
-                    func_code = func_code.Substring(1, func_code.Length - 2);
+                    if (line.Contains("(")) func_code = func_code.Substring(1, func_code.Length - 2);
+
                     if (paramsAvailable)
                     {
                         func_params = func_params.Substring(1, func_params.Length - 2);
@@ -348,47 +374,79 @@ namespace MentalCrash
                     if (foundItem != null)
                     {
                         int index = functions.IndexOf(foundItem);
-                        List<string> arg_lists = new List<string>(
+                        string commands = "";
+                        string arguments = "";
+                        List<string> arg_lists = new();
+
+                        if (line.Contains("[") && line.Contains("("))
+                        {
+                            arg_lists = new List<string>(
                             foundItem.Substring(func_name.Length + func_params.Length + 6).Split(",")
                             );
-                        string commands = arg_lists[0].Split(" ")[0];
-                        string arguments = arg_lists[0].Substring(commands.Length + 1);
+                            commands = arg_lists[0].Split(" ")[0];
+                            arguments = arg_lists[0].Substring(commands.Length + 1);
+                        }
+                        else
+                        {
+                            commands = foundItem.Substring(foundItem.LastIndexOf(">") + 1).Trim().Split(" ")[0];
+                            arg_lists = foundItem.Substring(foundItem.LastIndexOf(">") + 1).Trim().Split(" ")[1..].ToList();
+                        }
+
 
                         for (int i = 1; i < arg_lists.Count; i++)
                         {
                             arguments = arguments + "|" + arg_lists[i];
                         }
                         List<string> argumentsList = new List<string>();
-                        if (func_code != null && paramsAvailable)
+
+                        if (line.Contains("[") && line.Contains("("))
                         {
-                            for (int i = 0; i < arg_lists.Count; i++)
+                            if (func_code != null && paramsAvailable)
                             {
-                                commands = "V" + commands;
-                            }
-                            bool error = false;
-                            for (int i = 0; i < arg_lists.Count; i++)
-                            {
-                                //argumentsList.Add(func_params.Split(',')[i] + "|" + func_code.Split(',')[i]);
-                                argumentsList.Add(func_params.Split(',')[i].Trim());
-                                try
+                                for (int i = 0; i < arg_lists.Count; i++)
                                 {
-                                    argumentsList.Add(func_code.Split(',')[i].Trim());
+                                    commands = "V" + commands;
                                 }
-                                catch //If there is no value for a param
+                                bool error = false;
+                                for (int i = 0; i < arg_lists.Count; i++)
                                 {
-                                    Console.WriteLine($"Error; Value for param \'{func_params.Split(',')[i].Trim()}\' is Missing, all params must be set to a value if the function is invoked");
-                                    error = true;
+                                    //argumentsList.Add(func_params.Split(',')[i] + "|" + func_code.Split(',')[i]);
+                                    argumentsList.Add(func_params.Split(',')[i].Trim());
+                                    try
+                                    {
+                                        argumentsList.Add(func_code.Split(',')[i].Trim());
+                                    }
+                                    catch //If there is no value for a param
+                                    {
+                                        Console.WriteLine($"Error; Value for param \'{func_params.Split(',')[i].Trim()}\' is Missing, all params must be set to a value if the function is invoked");
+                                        error = true;
+                                        break;
+                                    }
+                                }
+                                if (error)
+                                {
                                     break;
                                 }
                             }
-                            if (error)
+                        }
+                        else
+                        {
+                            foreach (string e in arg_lists)
                             {
-                                break;
+                                if (e.EndsWith(","))
+                                {
+                                    argumentsList.Add(e.Substring(0, e.Length - 1));
+                                }
+                                else
+                                {
+                                    argumentsList.Add(e);
+                                }
                             }
                         }
-                        Debug.WriteLine(arguments);
+
+                        Debug.WriteLine(string.Join("", argumentsList));
                         Debug.WriteLine("\n" + commands);
-                        return Interperator(commands, argumentsList, out _);
+                        return Interperator(commands, argumentsList, out _, true);
                     }
                     else
                     {
@@ -479,7 +537,7 @@ namespace MentalCrash
                             Item2_data = "";
                         }
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         Item2 = "";
                         Item2_data = "";
@@ -783,6 +841,47 @@ namespace MentalCrash
                         }
                         args_list.RemoveAt(0);
                         return quotient;
+                    }
+                }
+                else if (c == 'S')
+                {
+                    string code = args_list[0];
+                    string type = code.Substring(0, 3);
+                    code = code.Substring(3);
+                    string searchWord = code.Split(',')[0].Trim();
+                    string sentance = code.Split(',')[1].Trim();
+                    if (type == "(c)")
+                    {
+                        if (sentance.Contains(searchWord))
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                    else if (type == "(s)")
+                    {
+                        if (sentance.StartsWith(searchWord))
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                    else if (type == "(e)")
+                    {
+                        if (sentance.EndsWith(searchWord))
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
                     }
                 }
                 else if (c == '.')
