@@ -238,77 +238,107 @@ namespace MentalCrash
                 {
                     if (args_list.Count > 0)
                     {
-                        string line = args_list[0];
-                        args_list.RemoveAt(0);
-                        string message = line;
-                        int style = 0;
-                        int type = 1; //Default
-                        if (line != "")
+                    }
+                    string line = args_list[0];
+                    args_list.RemoveAt(0);
+                    string message = line;
+                    int style = 1;
+                    string dataType = "undef";
+                    int type = 1; //Default
+                    if (line != "")
+                    {
+                        if (line.Contains('{') && line.Contains('[') && line.Contains('('))
                         {
-                            if (line.Contains("[") & line.Contains("]"))
-                            {
-                                message = line.Substring(0, line.IndexOf("["));
-                                type = Convert.ToInt32(line.Substring(line.IndexOf("[") + 1, line.IndexOf("]") - line.IndexOf("[") - 1));
-                            }
-                            if (line.Contains("(") & line.Contains(")"))
-                            {
-                                style = Convert.ToInt32(line.Substring(line.IndexOf("(") + 1, line.IndexOf(")") - line.IndexOf("(") - 1));
-                            }
-                            message = message.Trim();
+                            message = line.Substring(0, line.IndexOf("{"));
+                            dataType = line.Substring(line.IndexOf("{") + 1, line.IndexOf("}") - line.IndexOf("{") - 1);
 
-                            if (!ItemChecks.IsString(message) && !ItemChecks.IsInt(message))
-                            {
-                                try
-                                {
-                                    string foundItem = variables.FirstOrDefault(item => item.StartsWith(message));
-                                    if (foundItem == null)
-                                    {
-                                        throw new Exception();
-                                    }
+                            type = Convert.ToInt32(line.Substring(line.IndexOf("[") + 1, line.IndexOf("]") - line.IndexOf("[") - 1));
 
-                                    string varData = foundItem.Substring(foundItem.IndexOf('>') + 1);
-                                    if (ItemChecks.IsString(varData)) varData = varData.Substring(1, varData.Length - 2);
-                                    message = varData.Trim();
-                                }
-                                catch
-                                {
-                                    Console.WriteLine("Error; Not a valid data type");
-                                    break;
-                                }
-                            }
-
-                            if (type != 0)
-                            {
-                                if (type == 1) Console.Write($"{message}");
-                                else if (type == 2) Console.Write($"{message}\n");
-                                else break;
-                            }
-
-                            if (style != 0)
-                            {
-                                if (style == 1) Console.Write($">");
-                                else if (style == 2) Console.Write($">>>");
-                                else if (style == 3) Console.Write($":");
-                                else if (style == 4) Console.Write($":>");
-                                else if (style == 5) Console.Write($":>>>");
-                                else if (style == 6) Console.Write($"$");
-                                else if (style == 7) Console.Write($"$:");
-                                else if (style == 8) Console.Write($"-");
-                                else break;
-                            }
-
-                            Console.Write(" ");
+                            style = Convert.ToInt32(line.Substring(line.IndexOf("(") + 1, line.IndexOf(")") - line.IndexOf("(") - 1));
                         }
-                        else
+                        else if (line.Contains('{') && line.Contains('['))
                         {
-                            Console.Write("input>");
+                            dataType = line.Substring(line.IndexOf("{") + 1, line.IndexOf("}") - line.IndexOf("{") - 1);
+
+                            message = line.Substring(0, line.IndexOf("{"));
+
+                            type = Convert.ToInt32(line.Substring(line.IndexOf("[") + 1, line.IndexOf("]") - line.IndexOf("[") - 1));
+                        }
+                        else if (line.Contains('{') && line.Contains('('))
+                        {
+                            dataType = line.Substring(line.IndexOf("{") + 1, line.IndexOf("}") - line.IndexOf("{") - 1);
+
+                            message = line.Substring(0, line.IndexOf("{"));
+
+                            style = Convert.ToInt32(line.Substring(line.IndexOf("(") + 1, line.IndexOf(")") - line.IndexOf("(") - 1));
+                        }
+                    }
+
+                    message = message.Trim();
+
+                    if (message != "")
+                    {
+                        if (!ItemChecks.IsString(message) && !ItemChecks.IsInt(message))
+                        {
+                            try
+                            {
+                                string foundItem = variables.FirstOrDefault(item => item.StartsWith(message));
+                                if (foundItem == null)
+                                {
+                                    throw new Exception();
+                                }
+
+                                string varData = foundItem.Substring(foundItem.IndexOf('>') + 1);
+                                if (ItemChecks.IsString(varData)) varData = varData.Substring(1, varData.Length - 2);
+                                message = varData.Trim();
+                            }
+                            catch
+                            {
+                                Console.WriteLine("Error; Not a valid data type");
+                                break;
+                            }
                         }
                     }
                     else
                     {
-                        Console.Write("input>");
+                        Console.Write("input");
                     }
+
+                    if (type != 0)
+                    {
+                        if (type == 1) Console.Write($"{message}");
+                        else if (type == 2) Console.Write($"{message}\n");
+                        else break;
+                    }
+
+                    if (style != 0)
+                    {
+                        if (style == 1) Console.Write($">");
+                        else if (style == 2) Console.Write($">>>");
+                        else if (style == 3) Console.Write($":");
+                        else if (style == 4) Console.Write($":>");
+                        else if (style == 5) Console.Write($":>>>");
+                        else if (style == 6) Console.Write($"$");
+                        else if (style == 7) Console.Write($"$:");
+                        else if (style == 8) Console.Write($"-");
+                        else break;
+                    }
+
                     string input = Console.ReadLine();
+
+                    if (dataType == "str" && !ItemChecks.IsString(input))
+                    {
+                        Console.WriteLine("Not a string!"); break;
+                    }
+                    if (dataType == "int" && !ItemChecks.IsInt(input))
+                    {
+                        Console.WriteLine("Not an int!"); break;
+                    }
+                    if (dataType == "bool" && !ItemChecks.IsBoolean(input))
+                    {
+                        Console.WriteLine("Not a Boolean!"); break;
+                    }
+
                     int inputLength = input.Length;
                     Console.SetCursorPosition(0, Console.CursorTop - 1);
                     Console.Write(new string(' ', inputLength + 7 + 10));
@@ -507,6 +537,16 @@ namespace MentalCrash
                                 continue;
                             }
                         }
+                        else if (var_type == "cmd")
+                        {
+                            if (!ItemChecks.IsCommand(var_code))
+                            {
+                                ErrorHandler.Error("Error: Not a Command", ConsoleColor.Red);
+                                ErrorHandler.Error($"{args_list[0]}|{args_list[1]}", ConsoleColor.Red, false);
+                                ErrorHandler.ErrorPosition(args_list[0].Length, ConsoleColor.Red);
+                                continue;
+                            }
+                        }
                     }
                     string foundItem = variables.FirstOrDefault(item => item.StartsWith(var_name + " (" + var_type + ")> "));
                     if (foundItem != null)
@@ -515,7 +555,7 @@ namespace MentalCrash
                     }
                     if (var_code.StartsWith(":"))
                     {
-                        variables.Add(var_name + " (" + var_type + ")> " + Convert.ToString(Interperator(var_code, null, out _)));
+                        variables.Add(var_name + " (" + var_type + ")> " + Convert.ToString(Interperator(var_code, new List<string>(), out _)));
                     }
                     else
                     {
@@ -617,6 +657,11 @@ namespace MentalCrash
                     if (LHS_condition.StartsWith(":"))
                     {
                         LHS_condition = Convert.ToString(Interperator(LHS_condition.Substring(1), new List<string>(new string[] { " " }), out _));
+                    }
+
+                    if (RHS_condition.StartsWith(":"))
+                    {
+                        RHS_condition = Convert.ToString(Interperator(RHS_condition.Substring(1), new List<string>(new string[] { " " }), out _));
                     }
 
                     if (ItemChecks.IsString(LHS_condition)) LHSType = "string";
