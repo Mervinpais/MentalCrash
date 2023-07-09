@@ -236,8 +236,10 @@ namespace MentalCrash
                 }
                 else if (c == 'i')
                 {
-                    if (args_list.Count > 0)
+                    if (args_list.Count == 0)
                     {
+                        Console.WriteLine("No arguments left");
+                        break;
                     }
                     string line = args_list[0];
                     args_list.RemoveAt(0);
