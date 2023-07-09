@@ -602,7 +602,6 @@ namespace MentalCrash
                 }
                 else if (c == 'I')
                 {
-                    /* REWORK IF STATEMENT AND STRING CHECKING*/
                     if (args_list.Count == 0)
                     {
                         ErrorHandler.Error("No Data Left In Tape, " + current_cycle.ToString() + " out of " + total_length.ToString() + " commands have been processed, fix the error and re-run the program", ConsoleColor.Red);
